@@ -1,0 +1,59 @@
+m255
+K4
+z2
+!s11f vlog 2020.1 2020.02, Feb 28 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/aaa_se/fpga/de10_standard/projects/buttons_leds/sim
+vswitches_to_LEDs
+Z1 !s110 1704445208
+!i10b 1
+!s100 GzYB[Hgz<ldcWgUl62<e>0
+Z2 !s11b Dg1SIo80bB@j0V0VzS_@n1
+I0b4ioLJ>ZQjfmY:hY]Q@c1
+Z3 VDg1SIo80bB@j0V0VzS_@n1
+R0
+w1704443702
+8C:/aaa_se/fpga/de10_standard/projects/buttons_leds/switches_to_LEDs.v
+FC:/aaa_se/fpga/de10_standard/projects/buttons_leds/switches_to_LEDs.v
+!i122 1
+L0 1 12
+Z4 OV;L;2020.1;71
+r1
+!s85 0
+31
+Z5 !s108 1704445208.000000
+!s107 C:/aaa_se/fpga/de10_standard/projects/buttons_leds/switches_to_LEDs.v|
+!s90 -reportprogress|300|-work|work|-stats=none|C:/aaa_se/fpga/de10_standard/projects/buttons_leds/switches_to_LEDs.v|
+!i113 1
+Z6 o-work work
+Z7 tCvgOpt 0
+nswitches_to_@l@e@ds
+vtb_switches_to_LEDs
+R1
+!i10b 1
+!s100 91g6K<z^DORH[Jl60omW]3
+R2
+IYhJchRC99@W5f`N0TZn>K2
+R3
+R0
+w1704445170
+8C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v
+FC:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v
+!i122 2
+L0 2 29
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v|
+!s90 -reportprogress|300|-work|work|-stats=none|C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v|
+!i113 1
+R6
+R7
+ntb_switches_to_@l@e@ds

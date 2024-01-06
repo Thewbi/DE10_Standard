@@ -1,0 +1,70 @@
+# Compile of switches_to_LEDs.v was successful.
+# Compile of tb_switches_to_LEDs.v failed with 2 errors.
+# 2 compiles, 1 failed with 2 errors.
+# Compile of switches_to_LEDs.v was successful.
+# Compile of tb_switches_to_LEDs.v was successful.
+# 2 compiles, 0 failed with no errors.
+vsim -gui work.tb_switches_to_LEDs
+# vsim -gui work.tb_switches_to_LEDs 
+# Start time: 10:00:41 on Jan 05,2024
+# Loading work.tb_switches_to_LEDs
+# Loading work.switches_to_LEDs
+run -all
+#                    0 i_switch = xxxx, o_LED = xxxx
+#                    1 i_switch = 0000, o_LED = 0000
+#                    2 i_switch = 0100, o_LED = 0100
+#                    3 i_switch = 1010, o_LED = 1010
+#                    4 i_switch = 0101, o_LED = 0101
+#                    5 i_switch = 1010, o_LED = 1010
+# ** Note: $stop    : C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v(27)
+#    Time: 15 us  Iteration: 0  Instance: /tb_switches_to_LEDs
+# Break in Module tb_switches_to_LEDs at C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v line 27
+add wave -position end  sim:/tb_switches_to_LEDs/N
+add wave -position end  sim:/tb_switches_to_LEDs/i_switch
+add wave -position end  sim:/tb_switches_to_LEDs/o_LED
+run -all
+vsim -gui work.tb_switches_to_LEDs
+# End time: 10:14:36 on Jan 05,2024, Elapsed time: 0:13:55
+# Errors: 0, Warnings: 6
+# vsim -gui work.tb_switches_to_LEDs 
+# Start time: 10:14:37 on Jan 05,2024
+# Loading work.tb_switches_to_LEDs
+# Loading work.switches_to_LEDs
+run -all
+#                    0 i_switch = xxxx, o_LED = xxxx
+#                    1 i_switch = 0000, o_LED = 0000
+#                    2 i_switch = 0100, o_LED = 0100
+#                    3 i_switch = 1010, o_LED = 1010
+#                    4 i_switch = 0101, o_LED = 0101
+#                    5 i_switch = 1010, o_LED = 1010
+# ** Note: $stop    : C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v(27)
+#    Time: 15 us  Iteration: 0  Instance: /tb_switches_to_LEDs
+# Break in Module tb_switches_to_LEDs at C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v line 27
+add wave -position end  sim:/tb_switches_to_LEDs/N
+add wave -position end  sim:/tb_switches_to_LEDs/i_switch
+add wave -position end  sim:/tb_switches_to_LEDs/o_LED
+run -all
+run -all
+# Break key hit
+vsim -gui work.tb_switches_to_LEDs
+# End time: 10:16:59 on Jan 05,2024, Elapsed time: 0:02:22
+# Errors: 0, Warnings: 1
+# vsim -gui work.tb_switches_to_LEDs 
+# Start time: 10:16:59 on Jan 05,2024
+# Loading work.tb_switches_to_LEDs
+# Loading work.switches_to_LEDs
+add wave -position end  sim:/tb_switches_to_LEDs/N
+add wave -position end  sim:/tb_switches_to_LEDs/i_switch
+add wave -position end  sim:/tb_switches_to_LEDs/o_LED
+run -all
+#                    0 i_switch = xxxx, o_LED = xxxx
+#                    1 i_switch = 0000, o_LED = 0000
+#                    2 i_switch = 0100, o_LED = 0100
+#                    3 i_switch = 1010, o_LED = 1010
+#                    4 i_switch = 0101, o_LED = 0101
+#                    5 i_switch = 1010, o_LED = 1010
+# ** Note: $stop    : C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v(27)
+#    Time: 15 us  Iteration: 0  Instance: /tb_switches_to_LEDs
+# Break in Module tb_switches_to_LEDs at C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v line 27
+# End time: 10:45:16 on Jan 05,2024, Elapsed time: 0:28:17
+# Errors: 0, Warnings: 1

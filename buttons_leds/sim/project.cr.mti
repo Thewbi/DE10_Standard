@@ -1,0 +1,15 @@
+C:/aaa_se/fpga/de10_standard/projects/buttons_leds/switches_to_LEDs.v {1 {vlog -work work -stats=none C:/aaa_se/fpga/de10_standard/projects/buttons_leds/switches_to_LEDs.v
+Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+-- Compiling module switches_to_LEDs
+
+Top level modules:
+	switches_to_LEDs
+
+} {} {}} C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v {1 {vlog -work work -stats=none C:/aaa_se/fpga/de10_standard/projects/buttons_leds/tb_switches_to_LEDs.v
+Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+-- Compiling module tb_switches_to_LEDs
+
+Top level modules:
+	tb_switches_to_LEDs
+
+} {} {}}
