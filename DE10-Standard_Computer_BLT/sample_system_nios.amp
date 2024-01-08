@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><intel_fpga_monitor_program_sample_system version="1.0">
+	<architecture>Nios II</architecture>
+	<sample_text>
+		<sample_title>DE10-Standard Computer for Nios II</sample_title>
+		<sample_display_title>DE10-Standard Computer</sample_display_title>
+		<sample_description>This system, called the DE10-Standard Computer, is intended to be used as a platform for experiments in computer organization and embedded systems. To support these experiments, the system contains a number of components: a processor, memory, audio and video devices, and some simple I/O peripherals.</sample_description>
+		<sample_doc filepath="true">doc_Nios/DE10-Standard_Computer_NiosII.pdf</sample_doc>
+	</sample_text>
+	<system>
+		<system_info filepath="true">verilog/Computer_System.sopcinfo</system_info>
+		<system_sof filepath="true">verilog/DE10_Standard_Computer.sof</system_sof>
+		<board>DE10-Standard</board>
+		<processor>Nios2</processor>
+		<reset_processor_during_load>true</reset_processor_during_load>
+		<terminal>JTAG_UART</terminal>
+	</system>
+	<programs>
+		<program>
+			<type>Assembly Program</type>
+			<source_files>
+				<header_file filepath="true">software/address_map_nios2.s</header_file>
+			</source_files>
+		</program>
+		<program>
+			<type>C Program</type>
+			<source_files>
+				<header_file filepath="true">software/address_map_nios2.h</header_file>
+			</source_files>
+		</program>
+	</programs>
+</intel_fpga_monitor_program_sample_system>

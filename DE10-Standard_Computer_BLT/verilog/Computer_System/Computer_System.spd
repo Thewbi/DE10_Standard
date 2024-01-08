@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="simulation/submodules/Computer_System_Pushbuttons.v"
+   type="VERILOG"
+   library="Pushbuttons" />
+ <file
+   path="simulation/submodules/altera_up_ps2.v"
+   type="VERILOG"
+   library="PS2_Port" />
+ <file
+   path="simulation/submodules/altera_up_ps2_command_out.v"
+   type="VERILOG"
+   library="PS2_Port" />
+ <file
+   path="simulation/submodules/altera_up_ps2_data_in.v"
+   type="VERILOG"
+   library="PS2_Port" />
+ <file
+   path="simulation/submodules/Computer_System_PS2_Port.v"
+   type="VERILOG"
+   library="PS2_Port" />
+ <file
+   path="simulation/submodules/Computer_System_Onchip_SRAM.hex"
+   type="HEX"
+   library="Onchip_SRAM" />
+ <file
+   path="simulation/submodules/Computer_System_Onchip_SRAM.v"
+   type="VERILOG"
+   library="Onchip_SRAM" />
+ <file
+   path="simulation/submodules/fpoint_wrapper.v"
+   type="VERILOG"
+   library="Nios2_2nd_Core_Floating_Point" />
+ <file
+   path="simulation/submodules/fpoint_qsys.v"
+   type="VERILOG"
+   library="Nios2_2nd_Core_Floating_Point" />
+ <file
+   path="simulation/submodules/fpoint_hw_qsys.v"
+   type="VERILOG"
+   library="Nios2_2nd_Core_Floating_Point" />
+ <file
+   path="simulation/submodules/Computer_System_Nios2_2nd_Core.v"
+   type="VERILOG"
+   library="Nios2_2nd_Core" />
+ <file
+   path="simulation/submodules/Computer_System_Nios2.v"
+   type="VERILOG"
+   library="Nios2" />
+ <file
+   path="simulation/submodules/Computer_System_LEDs.v"
+   type="VERILOG"
+   library="LEDs" />
+ <file
+   path="simulation/submodules/Computer_System_JTAG_to_FPGA_Bridge.v"
+   type="VERILOG"
+   library="JTAG_to_FPGA_Bridge" />
+ <file
+   path="simulation/submodules/Computer_System_JTAG_UART.v"
+   type="VERILOG"
+   library="JTAG_UART" />
+ <file
+   path="simulation/submodules/altera_up_irda_counters.v"
+   type="VERILOG"
+   library="IrDA" />
+ <file
+   path="simulation/submodules/altera_up_irda_in_deserializer.v"
+   type="VERILOG"
+   library="IrDA" />
+ <file
+   path="simulation/submodules/altera_up_irda_out_serializer.v"
+   type="VERILOG"
+   library="IrDA" />
+ <file
+   path="simulation/submodules/altera_up_sync_fifo.v"
+   type="VERILOG"
+   library="IrDA" />
+ <file
+   path="simulation/submodules/Computer_System_IrDA.v"
+   type="VERILOG"
+   library="IrDA" />
+ <file
+   path="simulation/submodules/Computer_System_Interval_Timer.v"
+   type="VERILOG"
+   library="Interval_Timer" />
+ <file
+   path="simulation/submodules/Computer_System_HEX5_HEX4.v"
+   type="VERILOG"
+   library="HEX5_HEX4" />
+ <file
+   path="simulation/submodules/Computer_System_HEX3_HEX0.v"
+   type="VERILOG"
+   library="HEX3_HEX0" />
+ <file
+   path="simulation/submodules/altera_address_span_extender.sv"
+   type="SYSTEM_VERILOG"
+   library="F2H_Mem_Window_00000000" />
+ <file
+   path="simulation/submodules/Computer_System_Expansion_JP1.v"
+   type="VERILOG"
+   library="Expansion_JP1" />
+ <file
+   path="simulation/submodules/altera_up_avalon_video_dma_ctrl_addr_trans.v"
+   type="VERILOG"
+   library="Char_DMA_Addr_Translation" />
+ <file
+   path="simulation/submodules/Computer_System_Audio_Subsystem.v"
+   type="VERILOG"
+   library="Audio_Subsystem" />
+ <file
+   path="simulation/submodules/altera_up_av_config_serial_bus_controller.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_slow_clock_generator.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_dc2.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_d5m.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_lcm.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_ltm.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_ob_de1_soc.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_ob_de2_115.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_ob_de2i_150.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_ob_de10_standard.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_ob_audio.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_ob_adv7180.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/altera_up_av_config_auto_init_ob_adv7181.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/Computer_System_AV_Config.v"
+   type="VERILOG"
+   library="AV_Config" />
+ <file
+   path="simulation/submodules/Computer_System_ARM_A9_HPS.v"
+   type="VERILOG"
+   library="ARM_A9_HPS" />
+ <file
+   path="simulation/submodules/altera_up_avalon_adv_adc.v"
+   type="VERILOG"
+   library="ADC" />
+ <file
+   path="simulation/submodules/Computer_System_ADC.v"
+   type="VERILOG"
+   library="ADC" />
+ <file path="simulation/Computer_System.v" type="VERILOG" />
+ <topLevel name="Computer_System" />
+ <deviceFamily name="cyclonev" />
+ <modelMap
+   controllerPath="Computer_System.ARM_A9_HPS"
+   modelPath="Computer_System.ARM_A9_HPS" />
+ <modelMap
+   controllerPath="Computer_System.ARM_A9_HPS.fpga_interfaces"
+   modelPath="Computer_System.ARM_A9_HPS.fpga_interfaces" />
+ <modelMap
+   controllerPath="Computer_System.ARM_A9_HPS.hps_io"
+   modelPath="Computer_System.ARM_A9_HPS.hps_io" />
+ <modelMap
+   controllerPath="Computer_System.Onchip_SRAM"
+   modelPath="Computer_System.Onchip_SRAM" />
+ <modelMap
+   controllerPath="Computer_System.VGA_Subsystem.Char_Buf_Subsystem.Onchip_SRAM"
+   modelPath="Computer_System.VGA_Subsystem.Char_Buf_Subsystem.Onchip_SRAM" />
+</simPackage>
