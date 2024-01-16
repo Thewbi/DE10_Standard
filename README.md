@@ -3,15 +3,25 @@ DE10 Standard projects
 
 
 
-= Terasic DE 10 =
+# Links
 
-== General ==
+https://github.com/zangman/de10-nano
+https://github.com/zangman/de10-nano/blob/master/docs/Configuring-the-Device-Tree.md
+
+Avalon:
+https://www.youtube.com/watch?v=Vw2_1pqa2h0
+
+
+
+# Terasic DE 10
+
+## General
 
 DE stands for Development and Education (https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=163)
 
 
 
-== Boards ==
+## Boards
 
 DE0 Nano - small board without ethernet port
 DE10 Nano - https://www.mouser.de/ProductDetail/Terasic-Technologies/P0496?qs=%2FacZuiyY%252B4ZdDLJqTxdJ5w%3D%3D
@@ -23,7 +33,8 @@ DE1-SoC - https://people.ece.cornell.edu/land/courses/ece5760/DE1_SOC/DE1-SoC_Us
 
 
 
-= Terminology / Glossary =
+# Terminology / Glossary
+
 https://www.intel.com/content/www/us/en/programmable/quartushelp/17.0/reference/glossary/glosslist.htm
 
 DE10_NANO_SoC_GHRD - Golden Hardware Reference Designs (GHRD) (see ug_soc_eds-19-1-standard-and-19-3-pro-683187-705474.pdf)
@@ -46,14 +57,17 @@ Copy the .rbf file on the FAT partition of the memory card of the DE10-NANO.
 
 
 
-== golden_top Quartus project ==
+## golden_top Quartus project
 
 See DE10-Standard_User_manual.pdf
 
 Is a template project for Quartus to start projects for the DE10 standard from.
 It is contained on the CD.
 
-== DE10 Standard System Builder ==
+
+
+
+## DE10 Standard System Builder
 
 See DE10-Standard_User_manual.pdf
 
@@ -64,7 +78,9 @@ Additionally, developers can use the System Builder software utility to create t
 
 
 
-== FPGA Startup/Configuration Mode ==
+
+
+## FPGA Startup/Configuration Mode
 
 Info: The startup mode has nothing to do with loading a bitstream onto the DE10-Standard during
 Quartus development. During development a bitstream is loaded directly into the Cyclone V FPGA and
@@ -100,7 +116,11 @@ SW10.5 = MSEL4 = 0
 SW10.6 = N/A
 
 
-== Programming the FPGA ==
+
+
+
+
+## Programming the FPGA
 
 Programming refers to uploading a bit stream to the FPGA using Quartus.
 Quartus can program directly into the FGPA where the bitsream is only kept
@@ -173,14 +193,14 @@ C:\intelFPGA_lite\22.1std
 
 
 
-== NIOS ii, UART over JTAG ==
+## NIOS ii, UART over JTAG
 
 C:\intelFPGA_lite\22.1std\University_Program\Monitor_Program\amp\lib\src\niosII_jtag_uart.c
 
 
 
 
-== UART over GPIO pins ==
+## UART over GPIO pins
 
 https://community.intel.com/t5/FPGA-SoC-And-CPLD-Boards-And/DE10-Nano-IP-UART-GPIO-pins/m-p/1518223
 
@@ -221,7 +241,7 @@ The steps needed to modify the system are:
 
 
 
-== Error Upgrading ==
+## Error Upgrading
 
 https://community.intel.com/t5/Intel-FPGA-Software-Installation/Can-t-Open-Encrypted-VHDL-File/m-p/1446219
 
@@ -238,16 +258,11 @@ https://community.intel.com/t5/Intel-Quartus-Prime-Software/Qsys-Platform-Design
 - re-installed wsl
 - downloaded latest Ubuntu 18.04 from Microsoft Shop & installed it
 - executed following on Ubuntu shell :   
-
-   sudo apt-get update
-
-   sudo apt install wsl 
-
-  sudo apt install dos2unix
-
-  sudo apt install make 
-
-  sudo apt-get upgrade 
+	sudo apt-get update
+	sudo apt install wsl 
+	sudo apt install dos2unix
+	sudo apt install make 
+	sudo apt-get upgrade 
   
   
   
@@ -255,9 +270,12 @@ Does not compile on windows 10 with upgrades and Quartus 22.1
 It should work on linux.
 Create a large linux system and use Quartus 18.1
 
+Use Ubuntu 18.04 (https://releases.ubuntu.com/18.04/) since this Ubuntu version has to most wide support for even the most modern
+versions of Quartus Prime. According to reports from the internet it does support the installation of Quartus Prime 18.1.
 
 
-== Error compiling the DE10-Standard Computer ==
+
+## Error compiling the DE10-Standard Computer
 
 https://community.intel.com/t5/Intel-Quartus-Prime-Software/I-keep-getting-this-error-when-i-try-and-compile-and-havent-been/td-p/721211
 
@@ -276,3 +294,250 @@ Error (12006): Node instance "error_adapter_0" instantiates undefined entity
 Ensure that required library paths are specified correctly, define the specified entity, 
 or change the instantiation. If this entity represents Intel FPGA or third-party IP, 
 generate the synthesis files for the IP.
+
+
+
+
+# AXI and Avalon
+
+Communication between the HPS and the FPGA fabric.
+
+
+
+
+
+
+
+
+# ModelSim
+
+ModelSim might not be installed on your system. You can download it from here:
+https://www.intel.com/content/www/us/en/software-kit/750666/modelsim-intel-fpgas-standard-edition-software-version-20-1-1.html
+
+Once it is installed, it can be run from the start menu.
+
+ModelSim first has to create a project to which the DUT module and the testbench is added for simulation.
+Create a folder called "sim" to create the ModelSim project inside.
+File > New > Project...
+Project Name: "project"
+Select the "sim" folder.
+
+A new dialog opens. Select "Add Existing File" > Browse
+Select the files switches_to_LEDs.v and tb_switches_to_LEDs.v.
+OK
+
+Compile the files:
+MenuBar > Compile > Compile All
+
+Start the simulation
+MenuBar > Simulate > Start Simulation > Select the work library > Select the testbench file: tb_switches_to_LEDs.v
+
+To show the wave form viewer:
+View > Wave
+
+In the objects viewer, select all signals, you want to simulate and drag them into the wave form viewer.
+
+Click the very, very small button at the bottom called "Toggle leaf names <-> full names".
+
+Click MenuBar > Simulate > Run > Run -All
+
+Ctrl + MouseWheel to zoom.
+
+You should see the signals in the wave form viewer.
+You can also use the zoom full button to put all signal changes onto the screen.
+
+
+
+# Upload bitstream to the DE10 Standard directly into the FPGA (not into EPCS)
+
+https://www.intel.com/content/www/us/en/docs/programmable/683769/17-1/step-5-configure-your-design-on-the-board.html
+
+Processing > Start Compilation > Wait until compilation is done.
+
+Connect the USB cable between the PC and the DE10 standard.
+Apply power to the DE10 Standard.
+
+Tools > programmer > Hardware Setup > Add Hardware > Auto Detect
+
+The chip on the DE10 Standard is: 5CSXFC6D6F31   (SE 5CSXFC6D6F31C6N)
+Mode: JTAG
+
+Processing > Auto Detect > Select: 5CSXFC6D6
+
+https://www.youtube.com/watch?v=erYag9zr0ek
+There will be a warning about non-matching something, click OK and ignore it.
+
+Select the FPGA in the graphical JTAG chain > On the left hand side, select "Change file" > Select the .sof file.
+In the columns, set the checkbox called "Program/Configure" > Click "Start" on the left side
+
+
+Device Manager > JTAG Cables
+
+
+
+
+
+# Blink LEDs
+
+Start Quartus
+
+File > New > New Quartus Prime Project
+
+On the Device Selection wizard, select Family: Cyclone V (E / GX / GT / SX / SE / ST)
+Device: Cyclone V SX Extended edition features
+
+In the available device list, select 5CSXFC6D6F31C6 > Finish the wizard.
+
+Create a toplevel schematic file.
+File > New > Block Diagram / Schematic File > OK > Save it as blinky.bdf
+
+File > New > Verilog HDL File >
+
+```
+module counter(rst, clk, led);
+
+input rst, clk;
+output led;
+reg led;
+reg [31:0] cnt;
+
+always @(posedge clk or negedge rst)
+begin
+	if (rst == 0)
+	begin
+		cnt <= 0;
+		led <= 0;
+	end
+	else
+	begin
+		if (cnt < 500000)
+			cnt <= cnt + 1;
+		else
+		begin
+			cnt <= 0;
+			led <= ~led;
+		end
+	end
+end
+
+endmodule
+```
+
+Save it as counter.v
+
+While the counter.v is selected, File > Create / Update > Create Symbol files for current file.
+
+Insert the counter module into the top-level block diagram.
+
+Double click the empty area > Project > Under "Libraries" unfold the project node > Select the counter node > Click > OK.
+
+Open the IP catalog to pull in a PLL clock into the top level design.
+Libraries > Basic Functions > Clocks > PLL > PLL Intel FPGA IP
+IP Variation Filename: baudrate_pll
+
+Select PLL Intel FPGA IP. >  The MegaWizard will load.
+Reference Clock Frequency: 50 Mhz. (Reading: https://ftp.intel.com/Public/Pub/fpgaup/pub/Intel_Material/Boards/DE10-Standard/DE10_Standard_User_Manual.pdf, the DE10-Standard has 50 Mhz clocks connected to the FPGA fabric)
+Desired Frequency: 2 MHz.
+Remove the checkbox at the lock output.
+Finish.
+
+A quartus prime IP file (.qip) is generated.
+
+After the generation is done, double click an empty spot on the block diagram, from the project node, select
+the pll_clock. Place it onto the schematic. Connect outclk0 to clk of the counter.
+
+Add a reset push button:
+double click an empty spot on the block diagram
+From the primitives > select logic > not
+place the not on the schematic.
+
+Add three pins (like you added the not gate) > You need two input pins and one output pin.
+One of the inputs is called clk and it is connected to the PLL Block as reference clock.
+The other input is called reset and it is connected to the Not gate.
+
+The output pin is called LED and it is connected to the LED output of the counter module.
+
+Start the compilation. Once it is done, we can assign pins.
+Assignments > pin planner.
+
+Clock Pin_af14
+led   PIN_AA24
+reset pin_Aj4
+
+change I/O Standard to "3.3-V LVTTL" for all pins
+
+Just close the pin planner without saving!
+
+Start the compilation again
+
+Tools > Programmer > Auto Detect > Choose: 5CSXFC6D6 > OK > Ignore the warning and click ok.
+
+Select the FPGA in the graphical JTAG chain > On the left hand side, select "Change file" > Select the output_files/blinky.sof file.
+
+In the columns, set the checkbox called "Program/Configure" > Click "Start" on the left side
+
+Click Start
+
+
+
+# Quartus Prime, find top level verilog file
+
+To figure out which file is currently used as the top level module in a project, 
+switch the mode in the project navigator to "Hierarchy".
+
+Open the context menu on the entity that is shown in the hierarchy.
+Select Settings which opens up the Settings Dialog.
+Click the node "General". The general node shows the top-level entity.
+
+You can also change the mode of the project navigator to "Files" then open 
+the context menu on the verilog file you want to set as top-level entity and then
+select "Set as Top-Level entity" from the context menu.
+
+
+
+# Parameters to the top level entity
+
+Where do the parameters of the top level entity come from?
+Who and where is the top-level entity instantiated?
+
+
+
+
+
+# Use a 50 Mhz clock as a parameter to the top level entity
+
+
+Is a .sdc file really necessary????
+
+Why we need a SDC File? To give the TimeQuest Timing Analyzer the possibility 
+to check if the timing of the design will fit in the FPGA, some "parameters" 
+for the calculation are needed. This "parameters" are stored in the SDC file. 
+For example you will find the following line in the file:
+
+I think the .sdc file is necessary for the compilation process.
+
+File > New > Synopsys Design Constraint File.
+A .sdc file is created. Add the text:
+
+```
+create_clock -period "50.0 MHz" [get_ports CLOCK_50]
+create_clock -period "50.0 MHz" [get_ports CLOCK2_50]
+create_clock -period "10.0 MHz" [get_ports CLOCK_ADC_10]
+create_clock -period "100.0 MHz" [get_ports DRAM_CLK]
+derive_pll_clocks
+derive_clock_uncertainty
+```
+
+
+
+
+
+# Instantiating IP cores in verilog top level module.
+
+Some tutorials show how to make the top-level design unit a block diagram and
+the tutorials show how to drag in IP blocks onto that block diagram.
+
+But what if instead of a block diagram, you want to use a verilog file as the
+base design unit?
+
+https://www.intel.com/content/www/us/en/docs/programmable/683463/22-1/instantiating-ip-cores-in-hdl.html
