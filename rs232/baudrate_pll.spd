@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="baudrate_pll_sim/baudrate_pll.vo" type="VERILOG" />
+ <topLevel name="baudrate_pll" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

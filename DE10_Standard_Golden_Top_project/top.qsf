@@ -42,7 +42,7 @@ set_global_assignment -name DEVICE 5CSXFC6D6F31C6
 set_global_assignment -name TOP_LEVEL_ENTITY DE10_Standard_golden_top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 16.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "FRI NOV  4 11:14:54 2016"
-set_global_assignment -name LAST_QUARTUS_VERSION 16.0.0
+set_global_assignment -name LAST_QUARTUS_VERSION "22.1std.1 Lite Edition"
 set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLOCK2_50
 set_instance_assignment -name IO_STANDARD "2.5 V" -to CLOCK3_50
