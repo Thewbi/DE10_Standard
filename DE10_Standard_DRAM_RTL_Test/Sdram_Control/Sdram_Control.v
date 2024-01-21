@@ -249,19 +249,19 @@ module Sdram_Control(
         
     );
     
-    // DEBUG
-    //
-    // wbi
-    assign  DQ = `DSIZE'h1234;
-    //flag <= 1; // circumvent the fifos and set the flag to 1 directly
-    
-    // write    
-    mADDR   <= rWR_ADDR;    // rWR_ADDR comes from ??? and is copied to mADDR
-    mLENGTH <= WR_LENGTH;
-    WR_MASK <= 1'b1;        // write
-    RD_MASK <= 1'b0;        // do not read
-    mWR     <= 1;           // write
-    mRD     <= 0;
+//    // DEBUG
+//    //
+//    // wbi
+//    assign  DQ = `DSIZE'h1234;
+//    //flag <= 1; // circumvent the fifos and set the flag to 1 directly
+//    
+//    // write    
+//    mADDR   <= rWR_ADDR;    // rWR_ADDR comes from ??? and is copied to mADDR
+//    mLENGTH <= WR_LENGTH;
+//    WR_MASK <= 1'b1;        // write
+//    RD_MASK <= 1'b0;        // do not read
+//    mWR     <= 1;           // write
+//    mRD     <= 0;
    
 //    // read     
 //    mADDR   <= rRD_ADDR;
