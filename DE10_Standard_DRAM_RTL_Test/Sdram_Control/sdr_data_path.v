@@ -10,6 +10,7 @@ module sdr_data_path(
     // output
     DQOUT,
     DQM         // DQM = 
+
 );
 
 `include        "Sdram_Params.h"
@@ -48,4 +49,3 @@ module sdr_data_path(
     assign DQOUT = DATAIN;
 
 endmodule
-

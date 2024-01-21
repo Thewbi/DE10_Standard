@@ -17,7 +17,7 @@ module control_interface(
     //
     // inputs
     //
-    
+
     CLK,        // clock
     RESET_N,    // reset signal
     CMD,        // the abstract, high-level command to execute (Command 01 == READA command, Command 10 == WRITEA command, Command 00 == NOP command)
@@ -25,11 +25,11 @@ module control_interface(
     REF_ACK,
     INIT_ACK,
     CM_ACK,
-    
+
     //
     // outputs
     //
-    
+
     // commands
     NOP,        // a command that can be requested during normal operation via the CMD input
     READA,      // a command that can be requested during normal operation via the CMD input
@@ -37,11 +37,12 @@ module control_interface(
     REFRESH,    // important during the SDRAM initialization process
     PRECHARGE,  // important during the SDRAM initialization process
     LOAD_MODE,  // important during the SDRAM initialization process
-    
+
     SADDR,      // receives and stores the value of the ADDR input
     REF_REQ,
     INIT_REQ,
     CMD_ACK
+
 );
 
 `include        "Sdram_Params.h"
@@ -57,11 +58,11 @@ module control_interface(
     input                           REF_ACK;                // Refresh request acknowledge
     input                           INIT_ACK;               // Initial request acknowledge
     input                           CM_ACK;                 // Command acknowledge
-    
+
     //
     // Outputs
     //
-    
+
     // command outputs
     output                          NOP;                    // Decoded NOP command
     output                          READA;                  // Decoded READA command
@@ -74,8 +75,6 @@ module control_interface(
     output                          REF_REQ;                // Hidden refresh request
     output                          INIT_REQ;               // Hidden initial request
     output                          CMD_ACK;                // Command acknowledge
-
-
 
     reg                             NOP;
     reg                             READA;
@@ -149,32 +148,33 @@ module control_interface(
     begin
 
         if (RESET_N == 0) 
-        begin
-            timer           <= 0;
-            REF_REQ         <= 0;
-        end        
+            begin
+                timer           <= 0;
+                REF_REQ         <= 0;
+            end        
         else 
-        begin
-            // REF_ACK (= Refresh request acknowledge)
-            if (REF_ACK == 1)
-                begin
-                    timer <= REF_PER;
-                    REF_REQ <= 0;
-                end
-            else
-            // INIT_REQ (= Hidden initial request)
-            if (INIT_REQ == 1)
-                begin
-                    timer <= REF_PER + 200;
-                    REF_REQ <= 0;
-                end
-            else
-                timer <= timer - 1'b1;
+            begin
+            
+                // REF_ACK (= Refresh request acknowledge)
+                if (REF_ACK == 1)
+                    begin
+                        timer <= REF_PER;
+                        REF_REQ <= 0;
+                    end
+                else
+                // INIT_REQ (= Hidden initial request)
+                if (INIT_REQ == 1)
+                    begin
+                        timer <= REF_PER + 200;
+                        REF_REQ <= 0;
+                    end
+                else
+                    timer <= timer - 1'b1;
 
-            if (timer==0)
-                REF_REQ <= 1;
-        end
-        
+                if (timer == 0)
+                    REF_REQ <= 1;
+            end
+
     end
 
     // initial timer
@@ -194,15 +194,15 @@ module control_interface(
                 PRECHARGE       <= 0; 
                 LOAD_MODE       <= 0;
                 INIT_REQ        <= 0;
-            end        
+            end
         else 
             begin
-            
+
                 // INIT_PER (INITialization PERiod) is a parameter defined inside Sdram_Params.h
                 // the init_timer is increment from 0 to INIT_PER + 201, the it stops
                 if (init_timer < (INIT_PER + 201)) 
                     init_timer <= init_timer + 1;                    
-                
+
                 // init_timer within [0, INIT_PER] => execute the INIT_REQ command
                 if (init_timer < INIT_PER)
                     begin
@@ -211,7 +211,7 @@ module control_interface(
                         LOAD_MODE   <= 0;
                         INIT_REQ    <= 1; // there really is no init command defined for SDRAM so this actually triggers ???
                     end
-                    
+
                 // init_timer within [INIT_PER, INIT_PER + 20] => execute precharge
                 else if (init_timer == (INIT_PER + 20))
                     begin
@@ -220,7 +220,7 @@ module control_interface(
                         LOAD_MODE   <= 0;
                         INIT_REQ    <= 0;
                     end
-                    
+
                 // init_timer within [INIT_PER + 20, INIT_PER + 180]
                 // init_timer takes on exact values INIT_PER + 40, 60, 80, 100, 120, 140, 160, 180 => refresh
                 else if ((init_timer == (INIT_PER + 40))    ||
@@ -237,7 +237,7 @@ module control_interface(
                         LOAD_MODE   <= 0;
                         INIT_REQ    <= 0;
                     end
-                    
+
                 // init_timer takes on exact values INIT_PER + 200 => Start LOAD
                 else if (init_timer == (INIT_PER + 200))
                     begin

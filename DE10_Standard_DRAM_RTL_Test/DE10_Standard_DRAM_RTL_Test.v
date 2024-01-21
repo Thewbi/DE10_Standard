@@ -92,15 +92,18 @@ module DE10_Standard_DRAM_RTL_Test(
     //=======================================================
 
     wire  [15:0]  writedata;    // this is the data to write
-    wire  [15:0]  readdata;     // this is the space to store read data in
+    wire  [15:0]  readdata;     // this is the space to store read data in    
     wire          write;        // the RW_Test module sets this signal high if a write operation should be performed
+                                // this signal is put into the RW_Test module and into the Sdram_Control module and
+                                // integrates them     
     wire          read;         // the RW_Test module sets this signal high if a read operation should be performed
-                                // this signal is put into the RW_Test module and into the Sdram_Control module
+                                // this signal is put into the RW_Test module and into the Sdram_Control module and
+                                // integrates them 
     wire          clk_test;
 
     // PLL
     pll u0(
-        .refclk( CLOCK_50),     // refclk.clk
+        .refclk(CLOCK_50),      // refclk.clk
         .rst(1'b0),             // reset.reset
         .outclk_0(clk_test),    // outclk0.clk
         .outclk_1(),
@@ -140,7 +143,7 @@ module DE10_Standard_DRAM_RTL_Test(
         .RAS_N(DRAM_RAS_N), // determines what command is executed
         .CAS_N(DRAM_CAS_N), // determines what command is executed
         .WE_N(DRAM_WE_N),   // determines what command is executed
-        .DQ(DRAM_DQ),       // SDRAM data bus, 16 bit data input to read or write
+        .DQ(DRAM_DQ),       // [input] SDRAM data bus, 16 bit data input to read or write
         .DQM({DRAM_UDQM, DRAM_LDQM}),
         .SDR_CLK(DRAM_CLK)
         

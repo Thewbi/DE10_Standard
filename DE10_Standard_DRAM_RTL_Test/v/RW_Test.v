@@ -207,7 +207,7 @@ module RW_Test (
                         write_count <= write_count + 1'b1;
                     end
 
-                // finish compare all
+                // finish compare all - increment the address
                 7 : begin
                         if (max_address)
                             begin

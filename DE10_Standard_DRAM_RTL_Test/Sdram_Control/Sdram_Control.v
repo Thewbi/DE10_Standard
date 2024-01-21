@@ -8,7 +8,7 @@ module Sdram_Control(
     REF_CLK,
     RESET_N,
     CLK,
-    
+
     // FIFO Write Side 
     WR_DATA,            // WR_DATA
     WR,                 // WR = Write Request, this signal is put into Sdram_WR_FIFO
@@ -19,7 +19,7 @@ module Sdram_Control(
     WR_CLK,
     WR_FULL,
     WR_USE,
-    
+
     // FIFO Read Side 
     RD_DATA,
     RD,                 // RD = Read Request, this signal is put into Sdram_RD_FIFO
@@ -30,7 +30,7 @@ module Sdram_Control(
     RD_CLK,
     RD_EMPTY,
     RD_USE,
-    
+
     // SDRAM Side
     SA,         // [output] SDRAM address output            - Connected to the physical DRAM_ADDR pins on the SDRAM (see de10_standard_dram_rtl_test.v)
     BA,         // [output] SDRAM bank address              - Connected to the physical DRAM_BA pins on the SDRAM
@@ -39,9 +39,10 @@ module Sdram_Control(
     RAS_N,      // [output] SDRAM Row address Strobe        - Connected to the physical SDRAM Row address Strobe
     CAS_N,      // [output] SDRAM Column address Strobe     - Connected to the physical SDRAM Column address Strobe
     WE_N,       // [output] SDRAM write enable              - Connected to the physical DRAM_WE_N
-    DQ,         // [input]  SDRAM data bus                  - Connected to the physical DRAM_DQ
+    DQ,         // [inout]  SDRAM data bus                  - Connected to the physical DRAM_DQ, this is where you have to place data write or received read data
     DQM,        // [output] SDRAM data mask lines           - Connected to the physical {DRAM_UDQM, DRAM_LDQM}
     SDR_CLK     // [output] SDRAM clock                     - Connected to the physical DRAM_CLK
+
 );
 
     `include        "Sdram_Params.h"
@@ -144,7 +145,7 @@ module Sdram_Control(
     wire                                writea;
     wire                                refresh;
     wire                                precharge;
-    wire                                oe;
+    wire                                oe;                 // What is OE?
     wire                                ref_ack;
     wire                                ref_req;
     wire                                init_req;
@@ -163,6 +164,8 @@ module Sdram_Control(
 
     // control_interface is defined in control_interface.v
     //
+    // Translates from abstract CMD to SDRAM Command which can then be executed by command.v
+    //
     // After the Sdram_Control.v file (this module) has decided wich address to read of write
     // the resulting configuration data is put into this control_interface.v module.
     control_interface control1 (
@@ -175,7 +178,7 @@ module Sdram_Control(
         .CLK(CLK),
         .RESET_N(RESET_N),
         
-        .CMD(CMD), // CMD is passed in here!
+        .CMD(CMD), // CMD is passed in here! CMD is set by an always block further down in this module
         .ADDR(mADDR), // this is the addr to either read or write  (see Auto Read / Write Control further down)
         .REF_ACK(ref_ack),
         .CM_ACK(cm_ack),
@@ -196,6 +199,7 @@ module Sdram_Control(
         .REF_REQ(ref_req),
         .INIT_REQ(init_req),
         .CMD_ACK(CMDACK)
+        
     );
 
     // the Command is defined in command.v
@@ -232,7 +236,8 @@ module Sdram_Control(
 
         .REF_ACK(ref_ack),      // Refresh request acknowledge
         .CM_ACK(cm_ack),        // Command acknowledge ??? 
-        .OE(oe),                // OE signal for data path module
+        .OE(oe),                // OE signal for data path module. oe is used to create a DQ value from DQOUT
+                                // DQOUT is the value returned from the sdr_data_path instance
 
         .SA(ISA),               // SDRAM address
         .BA(IBA),               // SDRAM bank address
@@ -241,18 +246,51 @@ module Sdram_Control(
         .RAS_N(IRAS_N),         // SDRAM RAS, Row Address Strobe Command
         .CAS_N(ICAS_N),         // SDRAM CAS, Column Address Strobe Command
         .WE_N(IWE_N)            // SDRAM WE_N, Write Enable
+        
     );
+    
+    // DEBUG
+    //
+    // wbi
+    assign  DQ = `DSIZE'h1234;
+    //flag <= 1; // circumvent the fifos and set the flag to 1 directly
+    
+    // write    
+    mADDR   <= rWR_ADDR;    // rWR_ADDR comes from ??? and is copied to mADDR
+    mLENGTH <= WR_LENGTH;
+    WR_MASK <= 1'b1;        // write
+    RD_MASK <= 1'b0;        // do not read
+    mWR     <= 1;           // write
+    mRD     <= 0;
+   
+//    // read     
+//    mADDR   <= rRD_ADDR;
+//    mLENGTH <= RD_LENGTH;
+//    WR_MASK <= 1'b0;        // do not write
+//    RD_MASK <= 1'b1;        // read
+//    mWR     <= 0;
+//    mRD     <= 1;           // read
+
+
+
+
+
 
     // defined in sdr_data_path.v
     //
     // What does this entity do?
     sdr_data_path data_path1(
+
+        // input
         .CLK(CLK),
         .RESET_N(RESET_N),
         .DATAIN(mDATAIN),
         .DM(2'b00),
-        .DQOUT(DQOUT),
-        .DQM(IDQM)
+
+        // output
+        .DQOUT(DQOUT),          // DQOUT = SDRAM data out link
+        .DQM(IDQM)              // IDQM = SDRAM data mask lines
+        
     );
 
     // IP Block SDRAM fifo - It is a predefined IP block by Quartus.
@@ -280,11 +318,11 @@ module Sdram_Control(
         if (!RESET_N)
             flag <= 0;
         else
-        begin
-            // when the FIFO space is used up, set the flag. The flag causes the data to be written into SDRAM
-            if (write_side_fifo_rusedw == WR_LENGTH)
-                flag <= 1;
-        end
+            begin
+                // when the FIFO space is used up, set the flag. The flag causes the data to be written into SDRAM
+                if (write_side_fifo_rusedw == WR_LENGTH)
+                    flag <= 1;
+            end
     end
 
     // IP Block SDRAM fifo - It is a predefined IP block by Quartus.
@@ -332,6 +370,7 @@ module Sdram_Control(
     // DQOUT is ????
     assign  DQ = oe ? DQOUT : `DSIZE'hzzzz;
     
+    // active when Read or Write is requested
     assign  active = Read | Write;
 
     // this determines which CMD to execute based on the current (ST = Controller Status)
@@ -354,43 +393,44 @@ module Sdram_Control(
         else
         begin
             Pre_RD  <= mRD;
-            Pre_WR  <= mWR;
-            
+            Pre_WR  <= mWR; // mWR comes from the configuration that is build when the WRITE FIFO has been filled
+
             // ST is controller status
             case(ST)
-            
-            0:  begin
-                if({Pre_RD, mRD} == 2'b01)
-                    begin
-                        Read        <= 1;
-                        Write       <= 0;
-                        CMD         <= 2'b01; // Command 01 == READA command
-                        ST          <= 1;
+
+                0:  begin
+                    if ({Pre_RD, mRD} == 2'b01)
+                        begin
+                            Read        <= 1;
+                            Write       <= 0;
+                            CMD         <= 2'b01; // Command 01 == READA command
+                            ST          <= 1;
+                        end
+                    else if ({Pre_WR, mWR} == 2'b01)
+                        begin
+                            Read        <= 0;
+                            Write       <= 1;
+                            CMD         <= 2'b10; // Command 10 == WRITEA command
+                            ST          <= 1;
+                        end
                     end
-                else if({Pre_WR, mWR} == 2'b01)
-                    begin
-                        Read        <= 0;
-                        Write       <= 1;
-                        CMD         <= 2'b10; // Command 10 == WRITEA command
-                        ST          <= 1;
+
+                1:  begin
+                    if (CMDACK == 1)
+                        begin
+                            CMD         <= 2'b00; // Command 00 == NOP command
+                            ST          <= 2;
+                        end
                     end
-                end
-                
-            1:  begin
-                if(CMDACK == 1)
+
+                default:
                     begin
-                        CMD         <= 2'b00; // Command 00 == NOP command
-                        ST          <= 2;
+                        if (ST != SC_CL + SC_RCD + mLENGTH + 1)
+                            ST <= ST + 1;
+                        else
+                            ST <= 0;
                     end
-                end
-                
-            default:
-                begin
-                    if (ST != SC_CL + SC_RCD + mLENGTH + 1)
-                        ST <= ST + 1;
-                    else
-                        ST <= 0;
-                end
+
             endcase
 
             //
@@ -497,7 +537,7 @@ module Sdram_Control(
                 (WR_LOAD == 0) && 
                 (RD_LOAD == 0) && 
                 (flag == 1) // only when flag is set, will the 
-                )
+            )
             begin
             
                 // this section loads the signals with configuration data either for reading or writing
@@ -530,17 +570,17 @@ module Sdram_Control(
 
             end
 
-            if(mWR_DONE)
-            begin
-                WR_MASK <=  0;
-                mWR     <=  0;
-            end
+            if (mWR_DONE)
+                begin
+                    WR_MASK <=  0;
+                    mWR     <=  0;
+                end
 
-            if(mRD_DONE)
-            begin
-                RD_MASK <=  0;
-                mRD     <=  0;
-            end
+            if (mRD_DONE)
+                begin
+                    RD_MASK <=  0;
+                    mRD     <=  0;
+                end
             
         end
     end
