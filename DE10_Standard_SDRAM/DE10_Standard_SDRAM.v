@@ -284,6 +284,13 @@ module DE10_Standard_SDRAM(
         LEDR[1] = ~WRITEA;
         
         debug_write <= ~debug_write;
+        
+        // assign 0 to DRAM_DQ to make sure that the read opeartion actually puts a correct value from SDRAM into DRAM_DQ
+        // instead of just outputting the value that was left behind by the write operation
+        if (WRITEA == 0)
+        begin
+            DRAM_DQ <= 0;
+        end
     end
     
 
