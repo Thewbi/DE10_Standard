@@ -144,6 +144,8 @@ module control_interface(
     end
 
     // refresh timer
+    //
+    // This constantly sends refresh commands to keep the memory powered
     always @(posedge CLK or negedge RESET_N) 
     begin
 

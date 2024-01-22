@@ -175,22 +175,23 @@ module DE10_Standard_DRAM_RTL_Test(
 
     /////////////////////////////////////////////////
     // reset_n and start_n control
-    reg [31:0]  cont;
+    reg [31:0] cont;
     always @(posedge CLOCK_50)
-    cont <= (cont==32'd4_000_001) ? 32'd0 : cont + 1'b1;
+        cont <= (cont == 32'd4_000_001) ? 32'd0 : cont + 1'b1;
 
     reg[4:0] sample;
     always @(posedge CLOCK_50)
     begin
-        if (cont==32'd4_000_000)
-            sample[4:0]={sample[3:0], KEY[0]};
+        if (cont == 32'd4_000_000)
+            sample[4:0] = { sample[3:0], KEY[0] }; // left shift old data and insert new data into the index 0
         else 
-            sample[4:0]=sample[4:0];
+            sample[4:0] = sample[4:0];
     end
 
-    assign test_software_reset_n = (sample[1:0]==2'b10) ? 1'b0:1'b1;
-    assign test_global_reset_n   = (sample[3:2]==2'b10) ? 1'b0:1'b1;
-    assign test_start_n          = (sample[4:3]==2'b01) ? 1'b0:1'b1;
+    // sample is 
+    assign test_software_reset_n = (sample[1:0] == 2'b10) ? 1'b0 : 1'b1;
+    assign test_global_reset_n   = (sample[3:2] == 2'b10) ? 1'b0 : 1'b1;
+    assign test_start_n          = (sample[4:3] == 2'b01) ? 1'b0 : 1'b1;
 
     wire [2:0] test_result;
     assign test_result[0] = KEY[0];

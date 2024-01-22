@@ -1028,8 +1028,23 @@ Overview of Initialization:
 	6. The SDRAM is now ready for mode register programming
 2. Mode register programming
 3. READ, WRITE
-	1. ACTIVE command
-	2. READ or WRITE command
+	1. ACTIVE command (selects the bank and row)
+	2. READ or WRITE command (selects the burst length)
+	
+	
+# How to perform read and write
+
+SDRAM read and write accesses are burst oriented starting at a selected location and continuing for a programmed number of locations in a programmed sequence.
+
+The registration of an ACTIVE command begins accesses, followed by a READ or WRITE command. 
+
+The ACTIVE command in conjunction with address bits registered are used to select the bank and row to be accessed 
+(BA0, BA1 select the bank; A0-A12 select the row).
+
+The READ or WRITE commands in conjunction with address bits registered are used to select the starting column location for the burst access.
+Programmable READ or WRITE burst lengths consist of 1, 2, 4 and 8 locations or full page, with a burst terminate option.
+
+
 
 
 ## Signals / Pins
@@ -1081,4 +1096,127 @@ avalon-mm
 :DownLoad
 %QUARTUS_BIN%\\quartus_pgm.exe -m jtag -c 1 -o "p;DE10_Standard_DRAM_RTL_Test.sof@2"
 pause
+```
+
+
+
+
+
+
+
+# Compilation Errors
+
+## Error (10137): Verilog HDL Procedural Assignment error at de10_standard_sdram.v(272): object "rowaddr" on left-hand side of assignment must have a variable data type
+
+https://stackoverflow.com/questions/34028900/verilog-error-object-on-left-hand-side-of-assignment-must-have-a-variable-data
+
+Solution: 
+
+Change the datatype from wire to reg. Only reg can be assigned a value in a always block.
+
+In addition to the input and output declaration, if you want a input/output/inout variable to be a reg, 
+add an explicit declaration of that symbol to define it's datatype. Per default interface variables are interpreted to have "wire" type by the compiler,
+you explicitly have to change it to reg.
+
+
+
+
+
+
+
+# Programming Errors
+
+## Device Chain in Chain description file does not match physical device chain -- expected 1 device(s) but found 2 device(s)
+
+https://community.intel.com/t5/Intel-Quartus-Prime-Software/Programmer-Error-Message-quot-Device-Chain-does-not-match/m-p/146182
+
+The JTAG chain in the programmer has to match all devices available on the PCB!
+For the DE10-Standard, you have two JTAG devices: 
+
+SOCVHPS and 5CSXFC6D6.
+
+If you do not have a 5CSXFC6D6 JTAG node in the list, add it manually using the "?? to De ???" button. (My UI is cut of due to resolution issues)
+
+
+
+
+
+
+
+
+
+
+## Seven Segment Display
+
+The DE10 Standard has six 7-Segment displays.
+The rightmost 7-Segment Display is HEX0
+The leftmost 7-Segmeent Display is HEX5
+
+Nomenclature for the segments on this board is:
+
+          0
+        -----
+       |     |
+      5|     | 1
+       |  6  |
+        -----
+       |     |
+      4|     | 2
+       |     |
+        ----- 
+          3
+
+Negative Logic:
+Writing a zero to any of these bars will turn it ON
+Writing a one will turn things OFF!
+
+A function that turns bits into the corresponding 7-Segment digit representation can be found here:
+https://github.com/ganz125/seven_segments/blob/main/drive_6dig_7segs.v
+
+```
+//
+// Convert a hex nibble, i.e. 0 through F, to a 7 bit variable
+// representing which segments on the 7 segment display should 
+// be lit.
+//
+function automatic [6:0] segments ( input [3:0] i_nibble );
+
+   begin
+      
+      //
+      // Since DE10-Lite board 7 segment displays LEDs
+      // are wired active low, the bit patterns below 
+      // are negated.  
+      //
+      // Each 1 in the raw literal value represents 
+      // a lit segment.  
+      //
+      // 'default' case not necessary since list is exhaustive,
+      // but good practice to include to ensure avoiding unintentional
+      // inferred latch.  Note that this is _combinational_ logic.
+      //
+      
+      case (i_nibble)         // 654 3210 <----- Bit positions based on
+         4'h0   : segments = ~7'b011_1111;   //  numbering in comments at
+         4'h1   : segments = ~7'b000_0110;   //  top of this module.
+         4'h2   : segments = ~7'b101_1011;
+         4'h3   : segments = ~7'b100_1111;
+         4'h4   : segments = ~7'b110_0110;
+         4'h5   : segments = ~7'b110_1101;
+         4'h6   : segments = ~7'b111_1101;
+         4'h7   : segments = ~7'b000_0111;
+         4'h8   : segments = ~7'b111_1111;
+         4'h9   : segments = ~7'b110_1111;
+         4'hA   : segments = ~7'b111_0111;
+         4'hB   : segments = ~7'b111_1100;
+         4'hC   : segments = ~7'b011_1001;
+         4'hD   : segments = ~7'b101_1110;
+         4'hE   : segments = ~7'b111_1001;
+         4'hF   : segments = ~7'b111_0001;
+         default: segments = ~7'b100_0000;
+      endcase
+      
+   end
+
+endfunction
 ```

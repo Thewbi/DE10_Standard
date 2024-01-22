@@ -58,7 +58,7 @@ parameter	SDR_BL		=	(SC_PM == 1)?	3'b111	:
 							(SC_BL == 4)?	3'b010	:
 											3'b011	;
 parameter	SDR_BT		=	1'b0;	//	Sequential
-							//	1'b1:	//	Interleave
+							//	1'b1:	//	Interteave
 parameter	SDR_CL		=	(SC_CL == 2)?	3'b10:
 											3'b11;
  	

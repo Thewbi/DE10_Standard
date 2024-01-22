@@ -68,3 +68,7 @@ I think this module also manages timers for normal commands (NOP, READA and WRIT
 
 command.v is the module that knows the protocol to talk to the SDRAM.
 In a sense it is the SDRAM driver.
+
+### sdr_data_path.value
+
+The sdr_data_path 
