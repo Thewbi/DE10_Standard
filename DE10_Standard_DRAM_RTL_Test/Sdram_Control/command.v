@@ -256,7 +256,7 @@ module command(
 
 
     // logic that generates the OE signal for the data path module
-    // For normal burst write the duration of OE is dependent on the configured burst length.
+    // For normal "burst write" the duration of OE is dependent on the configured burst length.
     // For page mode accesses(SC_PM=1) the OE signal is turned on at the start of the write command
     // and is left on until a PRECHARGE(page burst terminate) is detected.
     //

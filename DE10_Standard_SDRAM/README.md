@@ -1,5 +1,19 @@
 # DE10_Standard_SDRAM
 
+## Disclaimer
+
+I am officially the worst verilog developer in the universe!
+This is the first more complex verilog application that I have worked on!
+
+I have no idea about any best practices in verilog or how to implement something in a elegant end efficient way.
+I need to learn a lot more.
+
+Therefore the code in this project is most likely not a good example of verilog use.
+If something is done in a wierd way, do not think about why it is done so wierdly.
+It is my fault!
+
+## Explanation
+
 This example uses code from the SDRAM tester which is an official example from the SystemCD.
 
 The extracted code will just write a single byte into the very first cell of the SDRAM and read it back.

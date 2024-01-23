@@ -81,18 +81,18 @@ module DE10_Standard_SDRAM(
     reg                                 rw_flag;
     reg                                 do_rw;
     reg     [6:0]                       oe_shift;
-    reg                                 oe1;
-    reg                                 oe2;
-    reg                                 oe3;
-    reg                                 oe4;
+    //reg                                 oe1;
+    //reg                                 oe2;
+    //reg                                 oe3;
+    reg                                 oe4; // what is oe4???
     
     // rp_shift and rp_done are used to time in terms of cycles, when a new command is allowed to start
     reg     [3:0]                       rp_shift; // to create a delay of four cycles, this 4 bit register is filled with 1111 and right shifted. When a 0 appears in the [0] index, rp_done is set to 0 to allow a new command to start 
     reg                                 rp_done; // rp_done is AND-ed together with other flags. A new command can only start when rp_done has a value of 0
 
     // ???
-    reg                                 ex_read; // is set to 1 if the READA command is executed
-    reg                                 ex_write; // is set to 1 if the WRITEA command is executed
+    reg                                 ex_read; // ex_read == executing_read, is set to 1 if the READA command is executed
+    reg                                 ex_write; // ex_write == executing_write, is set to 1 if the WRITEA command is executed
 
     reg     [15:0]                      timer;
     reg     [15:0]                      init_timer;
@@ -101,9 +101,11 @@ module DE10_Standard_SDRAM(
     reg     [`COLSIZE - 1:0]            coladdr;
     reg     [`BANKSIZE - 1:0]           bankaddr;
 
-    reg     [7:0]                       debug_reg;
-    reg                                 debug_read;
-    reg                                 debug_write;
+    reg     [7:0]                       debug_reg; // contains the byte of data to write into the SDRAM
+    //reg                                 debug_read;
+    //reg                                 debug_write;
+    
+    reg[15:0] read_buffer; // read word is written here
     
 //=======================================================
 //  Structural coding
@@ -283,7 +285,7 @@ module DE10_Standard_SDRAM(
         WRITEA <= ~WRITEA;
         LEDR[1] = ~WRITEA;
         
-        debug_write <= ~debug_write;
+        //debug_write <= ~debug_write;
         
         // assign 0 to DRAM_DQ to make sure that the read opeartion actually puts a correct value from SDRAM into DRAM_DQ
         // instead of just outputting the value that was left behind by the write operation
@@ -321,7 +323,7 @@ module DE10_Standard_SDRAM(
         READA <= ~READA;
         LEDR[2] = ~READA;
         
-        debug_read <= ~debug_read;
+        //debug_read <= ~debug_read;
         
     end
 
@@ -396,6 +398,11 @@ module DE10_Standard_SDRAM(
                         if (( READA == 1 ) & ( command_done == 0 ) & ( do_reada == 0 ) & ( rp_done == 0 ) & ( REF_REQ == 0 ))
                             begin
                                 do_reada <= 1;
+                                
+                                // clear read_buffer
+                                read_buffer <= 1'b0;
+                                
+                                // ex_read == executing_read, is set to 1 if the READA command is executed
                                 ex_read <= 1;
                             end
                         else
@@ -405,6 +412,8 @@ module DE10_Standard_SDRAM(
                         if (( WRITEA == 1 ) & ( command_done == 0 ) & ( do_writea == 0 ) & ( rp_done == 0 ) & ( REF_REQ == 0 ))
                             begin
                                 do_writea <= 1;
+                                
+                                // ex_write == executing_write, is set to 1 if the WRITEA command is executed
                                 ex_write <= 1;
                             end
                         else
@@ -453,14 +462,14 @@ module DE10_Standard_SDRAM(
                             begin  
                                 if (SC_PM == 0)
                                     begin
-                                        rp_shift <= ( rp_shift >> 1 ); // shift left until rp_done[] receives the value 0
+                                        rp_shift <= ( rp_shift >> 1 ); // shift right until rp_done[] receives the value 0
                                         rp_done <= rp_shift[0];
                                     end
                                 else
                                     begin                        
                                         if (( ex_read == 0 ) && ( ex_write == 0 ))
                                             begin
-                                                rp_shift <= ( rp_shift >> 1 ); // shift left until rp_done[] receives the value 0
+                                                rp_shift <= ( rp_shift >> 1 ); // shift right until rp_done[] receives the value 0
                                                 rp_done <= rp_shift[0];
                                             end
                                         else
@@ -468,11 +477,18 @@ module DE10_Standard_SDRAM(
                                                 // PM_STOP, page mode stop
                                                 if (PM_STOP == 1)
                                                     begin
-                                                        rp_shift <= ( rp_shift >> 1 ); // shift left until rp_done[] receives the value 0
+                                                        rp_shift <= ( rp_shift >> 1 ); // shift right until rp_done[] receives the value 0
                                                         rp_done <= rp_shift[0];
                                                         
-                                                        ex_read <= 1'b0; // set ex_read to zero
-                                                        ex_write <= 1'b0; // set ex_write to zero
+                                                        // ex_read == executing_read, is set to 1 if the READA command is executed
+                                                        // set ex_read to zero
+                                                        ex_read <= 1'b0;
+                                                        
+                                                        // ex_write == executing_write, is set to 1 if the WRITEA command is executed
+                                                        // set ex_write to zero
+                                                        ex_write <= 1'b0;
+                                                        
+                                                        read_buffer <= DRAM_DQ;
                                                     end
                                             end
                                     end
@@ -543,8 +559,23 @@ module DE10_Standard_SDRAM(
                 //
                 // SDR_CL, SDR_BT, SDR_BL are not defined anywhere!?!?!?!? how does that work?
                 // The signals are defined in Sdram_Params.h. They are specific to the SDRAM chip used.
+                //
+                // SDR_CL - SDRAM CL???
+                // SDR_BT - SDRAM Burst Type (1 bit)
+                // SDR_BL - SDRAM Burst Length (3 bit)
+                // 
                 if (do_load_mode == 1)
-                    DRAM_ADDR <= { 2'b00, SDR_CL, SDR_BT, SDR_BL };
+                    begin
+                        DRAM_BA <= { 2'b00 };   // reserved, (2 bit), BA1, BA0
+                        DRAM_ADDR <= { 
+                            3'b000, // reserved, (3 bit) (A10 - A12)
+                            1'b0,   // Write Burst Mode (1 bit) (A9) - Programmed Burst Length
+                            2'b00,  // Operating Mode (A8 - A7) - set to standard
+                            SDR_CL, // CAS Latency (3 bit) (A4 - A6)
+                            SDR_BT, // Burst type (1 bit) (A3)
+                            SDR_BL  // Burst length (3 bit) (A0 - A2)
+                        };
+                    end
 
                 // Generate the appropriate logic levels on DRAM_RAS_N, DRAM_CAS_N, and DRAM_WE_N
                 // depending on the issued command.
@@ -559,6 +590,13 @@ module DE10_Standard_SDRAM(
                 else
 
                 // burst terminate if write is active
+                //
+                // BURST TERMINATE
+                // The BURST TERMINATE command forcibly terminates
+                // the burst read and write operations by truncating either
+                // fixed-length or full-page bursts and the most recently
+                // registered READ or WRITE command prior to the BURST
+                // TERMINATE.
                 if (( do_precharge == 1 ) & ( ( oe4 == 1 ) | ( rw_flag == 1 ) ))
                     begin                        
                         DRAM_RAS_N <= 1;
@@ -577,7 +615,8 @@ module DE10_Standard_SDRAM(
                 else
 
                 // Mode Write: S=00, RAS=0, CAS=0, WE=0
-                // This should be labeled Mode Register Set (MRS) shouldn't it? https://www.mouser.de/datasheet/2/198/42-45R-S_86400F-16320F-706495.pdf page 8, table COMMAND TRUTH TABLE
+                // This should be labeled Mode Register Set (MRS) shouldn't it? 
+                // https://www.mouser.de/datasheet/2/198/42-45R-S_86400F-16320F-706495.pdf page 8, table COMMAND TRUTH TABLE
                 if (do_load_mode == 1)
                     begin
                         DRAM_RAS_N <= 0;
@@ -604,20 +643,22 @@ module DE10_Standard_SDRAM(
                     end
                 else
 
+                // INITIAL: No Operation: RAS=1, CAS=1, WE=1
                 if (do_initial == 1)
                     begin
-                        // No Operation: RAS=1, CAS=1, WE=1
+                        
                         DRAM_RAS_N <= 1;
                         DRAM_CAS_N <= 1;
                         DRAM_WE_N <= 1;
                     end
                 else
-                    begin
-                        // No Operation: RAS=1, CAS=1, WE=1
-                        DRAM_RAS_N <= 1;
-                        DRAM_CAS_N <= 1;
-                        DRAM_WE_N <= 1;
-                    end
+                
+                // DEFAULT case: No Operation: RAS=1, CAS=1, WE=1
+                begin
+                    DRAM_RAS_N <= 1;
+                    DRAM_CAS_N <= 1;
+                    DRAM_WE_N <= 1;
+                end
             end
     end
     

@@ -804,6 +804,9 @@ data is stored until the incoming data is collected by another component.
 
 # Using RAM with the FPGA fabric
 
+Sample Code for a SDRAM Controller:
+https://github.com/Arkowski24/sdram-controller/tree/master
+
 https://www.reddit.com/r/FPGA/comments/x5x4a8/stuck_on_simple_fpga_sdram_controller_dropped/
 C:\Users\U5353\Documents\Aschaffenburg\FPGA\DE10_Standard\ISSI_32Mx16_SDRAM_Controller.v
 
@@ -867,6 +870,21 @@ According to the datasheet of the ISSI SDRAM chip: https://www.issi.com/WW/pdf/4
 the SDRAM chip understands so called commands! Commands seem to be the interface to talk to the SDRAM chip.
 
 The commands are listed in the datasheet:
+
+### ACTIVE COMMAND / BANK ACTIVATE (ACT)
+
+Defined on datasheet page 27
+
+Before any READ or WRITE commands can be issued
+to a bank within the SDRAM, a row in that bank must be
+“opened.” This is accomplished via the ACTIVE command,
+which selects both the bank and the row to be activated 
+
+When the ACTIVE COMMAND is activated, BA0, BA1
+inputs selects a bank to be accessed, and the address
+inputs on A0-A12 selects the row. Until a PRECHARGE
+command is issued to the bank, the row remains open
+for accesses.
 
 ### READ
 The READ command selects the bank from BA0, BA1
@@ -960,12 +978,7 @@ During the LOAD MODE REGISTER command the mode
 register is loaded from A0-A12. This command can only
 be issued when all banks are idle.
 
-### ACTIVE COMMAND / BANK ACTIVATE (ACT)
-When the ACTIVE COMMAND is activated, BA0, BA1
-inputs selects a bank to be accessed, and the address
-inputs on A0-A12 selects the row. Until a PRECHARGE
-command is issued to the bank, the row remains open
-for accesses.
+
 
 ### DEVICE SELECT (DESL)
 
@@ -1018,7 +1031,9 @@ unknown state.
 
 
 Notes by the author.
-Overview of Initialization:
+
+Overview of Initialization (Has to be done before issueing any command other than a COMMAND INHIBIT or a NOP)
+
 1. Power Up until the SDRAM is ready for Mode Register programming
 	1. Apply power to the chip
 	2. Wait for 100 microseconds (or send a COMMAND INHIBIT or NOP command which must be then kept active for 100 microsends)
@@ -1026,11 +1041,74 @@ Overview of Initialization:
 	4. SEND A PRECHARGE command to all banks -> Now all banks are in an idle state.
 	5. perform at least two AUTO REFRESH commands
 	6. The SDRAM is now ready for mode register programming
+
 2. Mode register programming
+The configured mode determines: 
+- burst length
+- burst type
+- CAS latency
+- operating mode
+- write burst mode 
+
+Defined on page 24: https://www.mouser.de/datasheet/2/198/42-45R-S_86400F-16320F-706495.pdf
+The LOAD MODE REGISTER command is used to programm the mode register.
+	1. Fill data into the A0-A12, BA0, BA1 inputs. Then execute LOAD MODE REGISTER to transfer
+	the values from the A0-A12, BA0, BA1 inputs into the mode register.
+	
+	BA1 BA0 A12 A11 A10 - reserved and are filled with 0 to ensure compatibility???
+	A9 					- Write Burst - Mode: 
+							1 == Single Location Access, 
+							0 == Programmed Burst Length
+	A8 A7				- Operating Mode
+	A6 A5 A4			- Latency Mode
+	A3					- (Read) Burst Type
+	A2 A1 A0			- (Read) Burst Length
+
 3. READ, WRITE
 	1. ACTIVE command (selects the bank and row)
-	2. READ or WRITE command (selects the burst length)
+	2. READ 
 	
+		or 
+	
+		WRITE command (selects the burst length)
+			The row being accessed will be precharged at the end of
+			the WRITE burst, if AUTO PRECHARGE is selected. If
+			AUTO PRECHARGE is not selected, the row will remain
+			open for subsequent accesses.
+	3. PRECHARGE: (Only relevant for WRITE operations"): PRECHARGE to close the row and save it into the SDRAM chip 
+		(AUTO-PRECHARGE can be activated when a WRITE operation is started)
+		
+		
+## Understanding burst length
+
+page 25
+
+Burst Length
+Read and write accesses to the SDRAM are burst oriented,
+with the burst length being programmable, as shown in
+MODE REGISTER DEFINITION. The burst length determines the maximum number of column locations that can
+be accessed for a given READ orWRITE command.Burst
+lengths of 1, 2, 4 or 8 locations are available for both the
+sequential and the interleaved burst types, and a full-page
+burst is available for the sequential type. The full-page
+burst is used in conjunction with the BURST TERMINATE
+command to generate arbitrary burst lengths.
+	
+Terminology
+bank - the SDRAM chip consists of 4 banks
+block - a block ???
+page - a page ???
+x16 - ???
+x8 - ???
+
+## CAS Latency
+
+CAS Latency
+The CAS latency is the delay, in clock cycles, between
+the registration of a READ command and the availability of
+the first piece of output data. The latency can be set to two or
+three clocks
+
 	
 # How to perform read and write
 
@@ -1220,3 +1298,12 @@ function automatic [6:0] segments ( input [3:0] i_nibble );
 
 endfunction
 ```
+
+
+
+
+# Verilog
+
+## How to change reg in two different always blocks?
+
+https://electronics.stackexchange.com/questions/137865/how-to-change-reg-in-two-different-always-blocks
