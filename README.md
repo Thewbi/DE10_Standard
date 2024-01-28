@@ -1306,4 +1306,90 @@ endfunction
 
 ## How to change reg in two different always blocks?
 
+Problem: assigning a value to a variable is possible in a always block.
+When assigning the variable in a second always block, an error is output by the compiler.
+Each variable can only be written by one always block. 
+The reason is that a register is implemented using flipflops. A flipflop should only have a single
+driving data source. If it had two incoming datasource, it is not clear, what data is written into the flip flop!
+
 https://electronics.stackexchange.com/questions/137865/how-to-change-reg-in-two-different-always-blocks
+
+
+
+
+
+## Number before squiggly/curly braces syntax
+
+```
+wire [31:0] Iimm = { { 21{ instr[31] } }, instr[30:20] };
+```
+
+In the snippet above, what does 21{ instr[31] } mean?
+It means: 21 copies of instr[31].
+A single bit is copied! This can be used for sign extension!
+
+https://stackoverflow.com/questions/2102746/what-do-curly-braces-mean-in-verilog
+
+```
+input  [15:0] a;      // 16-bit input
+output [31:0] result; // 32-bit output
+assign result = { { 16{a[15]} }, { a[15:0] } };
+```
+
+The curly braces mean concatenation, from most significant bit (MSB) on the left down to the least significant bit (LSB) on the right. 
+You are creating a 32-bit bus (result) whose 16 most significant bits consist of 16 copies of bit 15 (the MSB) of the a bus, 
+and whose 16 least significant bits consist of just the a bus (this particular construction is known as sign extension, which is needed 
+e.g. to right-shift a negative number in two's complement form and keep it negative rather than introduce zeros into the MSBits).
+
+For what it's worth, the nested curly braces around a[15:0] are superfluous.
+
+
+
+
+
+## Synthesis Attributes.
+
+Verilog compilers can be controlled using synthesis attributes in code.
+Synthesis attributes are written using the Syntax: (* <attribute_goes_here> *)
+
+Examples:
+https://github.com/BrunoLevy/learn-fpga/blob/master/FemtoRV/RTL/PROCESSOR/femtorv32_quark.v
+
+```
+	(* no_rw_check *)
+   reg [31:0] registerFile [31:0];
+```
+
+```
+	(* onehot *)
+   reg [NB_STATES-1:0] state;
+```
+
+```
+	(* parallel_case *)
+    case(1'b1)
+```
+
+### Synthesis Attribute for RAM Style
+
+An example is the RAM style synthesis attribute, which controls what type of RAM should be inferred:
+https://www.intel.com/content/www/us/en/programmable/quartushelp/17.0/hdl/vlog/vlog_file_dir_ram.htm
+
+By setting the value to 
+"M4K", "M9K", "M20K", "M144K", or "MLAB", you can choose the type of memory block that the Quartus® Prime software uses when implementing the inferred RAM. 
+
+If the attribute is set to "logic", then the RAM is implemented in logic cells.
+
+In addition to specifying the type of memory block for the RAM implementation, by setting the value to "no_rw_check", you can use the ramstyle attribute to 
+indicate that you do not care about the output of the inferred RAM when there are simultaneous reads and writes to the same address. 
+
+
+## localparam 
+
+```
+   localparam FETCH_INSTR_bit     = 0;
+   localparam WAIT_INSTR_bit      = 1;
+   localparam EXECUTE_bit         = 2;
+   localparam WAIT_ALU_OR_MEM_bit = 3;
+   localparam NB_STATES           = 4;
+```
