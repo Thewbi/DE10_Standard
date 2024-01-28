@@ -5,31 +5,31 @@
 
 module ULPI(
 
-	//////////// CLOCK //////////
-	input 		          		CLOCK2_50,
-	input 		          		CLOCK3_50,
-	input 		          		CLOCK4_50,
-	input 		          		CLOCK_50,
+    //////////// CLOCK //////////
+    input                       CLOCK2_50,
+    input                       CLOCK3_50,
+    input                       CLOCK4_50,
+    input                       CLOCK_50,
 
-	//////////// KEY //////////
-	input 		     [3:0]		KEY,
+    //////////// KEY //////////
+    input           [3:0]       KEY,
 
-	//////////// SW //////////
-	input 		     [9:0]		SW,
+    //////////// SW //////////
+    input           [9:0]       SW,
 
-	//////////// LED //////////
-	output		     [9:0]		LEDR,
+    //////////// LED //////////
+    output          [9:0]       LEDR,
 
-	//////////// Seg7 //////////
-	output		     [6:0]		HEX0,
-	output		     [6:0]		HEX1,
-	output		     [6:0]		HEX2,
-	output		     [6:0]		HEX3,
-	output		     [6:0]		HEX4,
-	output		     [6:0]		HEX5,
+    //////////// Seg7 //////////
+    output          [6:0]       HEX0,
+    output          [6:0]       HEX1,
+    output          [6:0]       HEX2,
+    output          [6:0]       HEX3,
+    output          [6:0]       HEX4,
+    output          [6:0]       HEX5,
 
-	//////////// GPIO, GPIO connect to GPIO Default //////////
-	inout 		    [35:0]		GPIO
+    //////////// GPIO, GPIO connect to GPIO Default //////////
+    inout           [35:0]      GPIO
 );
 
 
@@ -45,6 +45,19 @@ module ULPI(
 //  Structural coding
 //=======================================================
 
+ulpi_wrapper ulpi_wrapper_instance(
+
+    // inputs
+    .ulpi_clk60_i(),
+    .ulpi_rst_i(),
+    .ulpi_data_out_i(),
+    .ulpi_dir_i(),
+    .ulpi_nxt_i(),
+    
+    // outputs
+    .ulpi_data_in_o(),
+    .ulpi_stp_o()
+    );
 
 
 endmodule
