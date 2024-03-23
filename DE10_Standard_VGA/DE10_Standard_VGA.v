@@ -5,38 +5,38 @@
 
 module DE10_Standard_VGA(
 
-	//////////// CLOCK //////////
-	input 		          		CLOCK2_50,
-	input 		          		CLOCK3_50,
-	input 		          		CLOCK4_50,
-	input 		          		CLOCK_50,
+    //////////// CLOCK //////////
+    input                       CLOCK2_50,
+    input                       CLOCK3_50,
+    input                       CLOCK4_50,
+    input                       CLOCK_50,
 
-	//////////// KEY //////////
-	input 		     [3:0]		KEY,
+    //////////// KEY //////////
+    input            [3:0]      KEY,
 
-	//////////// SW //////////
-	input 		     [9:0]		SW,
+    //////////// SW //////////
+    input            [9:0]      SW,
 
-	//////////// LED //////////
-	output		     [9:0]		LEDR,
+    //////////// LED //////////
+    output           [9:0]      LEDR,
 
-	//////////// Seg7 //////////
-	output		     [6:0]		HEX0,
-	output		     [6:0]		HEX1,
-	output		     [6:0]		HEX2,
-	output		     [6:0]		HEX3,
-	output		     [6:0]		HEX4,
-	output		     [6:0]		HEX5,
+    //////////// Seg7 //////////
+    output           [6:0]      HEX0,
+    output           [6:0]      HEX1,
+    output           [6:0]      HEX2,
+    output           [6:0]      HEX3,
+    output           [6:0]      HEX4,
+    output           [6:0]      HEX5,
 
-	//////////// VGA //////////
-	output		          		VGA_BLANK_N,
-	output		     [7:0]		VGA_B,
-	output		          		VGA_CLK,
-	output		     [7:0]		VGA_G,
-	output		          		VGA_HS,
-	output		     [7:0]		VGA_R,
-	output		          		VGA_SYNC_N,
-	output		          		VGA_VS
+    //////////// VGA //////////
+    output                      VGA_BLANK_N,
+    output           [7:0]      VGA_B,
+    output                      VGA_CLK,
+    output           [7:0]      VGA_G,
+    output                      VGA_HS,
+    output           [7:0]      VGA_R,
+    output                      VGA_SYNC_N,
+    output                      VGA_VS
 );
 
 
@@ -45,13 +45,73 @@ module DE10_Standard_VGA(
 //  REG/WIRE declarations
 //=======================================================
 
+reg iRST_N = 1'b1;
 
+wire vga_25Mhz_clock;
 
+// Host Side
+reg       [7:0]     iRed = 8'b0;
+reg       [7:0]     iGreen = 8'b0;
+reg       [7:0]     iBlue = 8'b0;
+wire       [21:0]    oAddress;
+wire       [10:0]    oCurrent_X;
+wire       [10:0]    oCurrent_Y;
+wire                 oRequest;
 
 //=======================================================
 //  Structural coding
 //=======================================================
 
+vga_25Mhz_pll (
+    .refclk(CLOCK_50), // refclk.clk
+    .rst(iRST_N), // reset.reset
+    .outclk_0(vga_25Mhz_clock) // outclk0.clk
+);
+
+VGA_Ctrl (
+
+    // Host Side
+    //input       [7:0]	iRed;
+    //input       [7:0]	iGreen;
+    //input       [7:0]	iBlue;
+    //output		[21:0]	oAddress;
+    //output		[10:0]	oCurrent_X;
+    //output		[10:0]	oCurrent_Y;
+    //output				oRequest;
+
+    // Host Side
+    .iRed(iRed),
+    .iGreen(iGreen),
+    .iBlue(iBlue),
+    .oAddress(oAddress),
+    .oCurrent_X(oCurrent_X),
+    .oCurrent_Y(oCurrent_Y),
+    .oRequest(oRequest),
+    
+    // VGA Side
+    //output		[9:0]	oVGA_R;
+    //output		[9:0]	oVGA_G;
+    //output		[9:0]	oVGA_B;
+    //output	reg			oVGA_HS;
+    //output	reg			oVGA_VS;
+    //output				oVGA_SYNC;
+    //output				oVGA_BLANK;
+    //output				oVGA_CLOCK;
+    
+    // VGA Side
+    .oVGA_R(VGA_R),
+    .oVGA_G(VGA_G),
+    .oVGA_B(VGA_B),
+    .oVGA_HS(VGA_HS),
+    .oVGA_VS(VGA_VS),
+    .oVGA_SYNC(VGA_SYNC_N),
+    .oVGA_BLANK(VGA_BLANK_N),
+    //.oVGA_CLOCK,
+    
+    // Control Signal
+    .iCLK(vga_25Mhz_clock),
+    .iRST_N(iRST_N)
+);
 
 
 endmodule

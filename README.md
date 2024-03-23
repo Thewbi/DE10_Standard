@@ -1409,4 +1409,126 @@ As a configuration for the SystemBuilder utility, set the "Project Name" to "DE1
 Enable CLOCK and VGA.
 Optionally enable: LEDx10, Buttonx4, 7-Segmentx6, Switchx10.
 
-Generate the project.
+Generate the project and open it inside Quartus Prime.
+
+## VGA Usage
+
+The VGA connector on the DE10 Standard is a 15-pin D-SUB connector into which the monitor cable is plugged.
+The FPGA has to generate signals on the pins in order to tell the monitor which color to display for which pixel.
+
+VGA was designed for analog technology instead of modern digital hardware.
+VGA was defined in the days of cathode ray tubes (CRT) and as such it has to generate signals that are compatible
+with image creation using CRTs. A CRT exites red, green and blue pixels using an electron beam so the pixels glow
+and the image is displayed. As the pixels are phosphorent type, they will fade quickly causing the image to disappear.
+Therefore the image is drawn using a 50 Hz (PAL) or 60 Hz (NTSC) frequency keeping the image stable to the human eye.
+
+The electron beam is moved accross the phosporent plane in a defined pattern. That is the reason why a VGA image
+source cannot draw color at a random x, y coordinate but it has to keep track of the current electron beam's position
+and it has to provide the correct color for that specific pixel at the correct time on the pins of the VGA connector
+to draw the image according to the pattern. Aside from the RGB color values, it also has to output the Horizontal Sync,
+Vertical Sync, Sync, Blank and clock signals.
+
+```
+output	reg			oVGA_HS;
+output	reg			oVGA_VS;
+output				oVGA_SYNC;
+output				oVGA_BLANK;
+output				oVGA_CLOCK;
+```
+
+The implementation of a VGA system in verilog oftentimes separates the signal generation from the color / image source.
+That means that often there will be a signal generator that keeps track of the electron beam's current location
+and generates the control signals for the VGA connector except for the color values, which it leaves to the 
+color / image providing component. 
+
+The image providing component is connected to the signal generating component
+and constantly receives pixel x and y coordinates from the signal generator for which it then has to provide
+the correct R, G and B color values to the signal generator. The signal generator will merely forward the
+color values to the VGA connector.
+
+This design makes the signal generator reusable and allows for the implementation of several different images
+sources that might even work with other technologies than VGA. It provides separation of concerns and a clean interface
+furthering loose coupling.
+
+## VGA Screen Geometry
+
+https://vanhunteradams.com/DE1/VGA_Driver/Driver.html
+
+The electron beam initially is at a random location going through it's movement pattern.
+The image source (the FPGA controlled VGA connector) has to sync up with the electron beam.
+This synchronization is achieved by the image source starting with sync signals.
+
+There are two separate sync signals. They are H_SYNC and V_SYNC.
+
+H_SYNC is low when the monitor should move the electron beam back to the beginning of the line.
+Otherwise H_SYNC is high which sets the electron beam free to move along it's pattern.
+
+V_SYNC is low when the monitor should move the electron beam back to the beginning of an entire frame
+this means back to the topmost position vertically, when V_SYNC is high, the montior has control
+over the electron beam in the vertical direction and can move along the pattern.
+
+The H_SYNC and V_SYNC are pulled low for a defined number of clock cycles each.
+H_SYNC and V_SYNC are wrapped in a front porch and back porch. During the porches, the SYNC signals stay high.
+
+While the electron beam is inside the porches or the sync regions, the color data on the color pins for
+red, green and blue are all set to 0.
+
+The rest of the screen contains the active region, which is where the image data should be drawn.
+Inside the active region the red, green and blue pins of the VGA connector are set to the color values of the
+image. 
+
+## Example implementation
+
+The System CD contains various examples. One of the example contains a signal generator for VGA.
+
+```
+C:\aaa_se\fpga\DE10-Standard_v.1.3.0_SystemCD\Demonstration\FPGA\DE10_Standard_TV\v\VGA_Ctrl.v
+```
+
+The signal generator has a vertical counter (H_Cont) and a vertical counter (V_Cont) implemented as 
+registers, so they keep state.
+
+```
+reg			[10:0]	H_Cont;
+reg			[10:0]	V_Cont;
+```
+
+H_Cont and V_Cont are incremented. Their current values are compared to the porches and sync areas to generate
+the correct horizontal and vertical sync signals (oVGA_HS and oVGA_VS).
+
+H_Cont and V_Cont are also used to compute signals towards the color / image source.
+They are used to compute the x and y coordinate within the active area and another signal called oRequest
+which is high, whenever data for the active area is required. The color / image source has to send color
+values of 0 whenever oRequest is low. It has to send the correct color for the current x and y value, whenever
+oRequest is high.
+
+
+## VGA CLOCK
+
+For NTSC the image is refreshed at 60 Hz. Let's assume, that the resolution for our VGA output is 640 by 480.
+
+https://projectf.io/posts/video-timings-vga-720p-1080p/#vga-640x480-60-hz
+
+
+
+25 MHz pixel clock
+
+
+Open the IP catalog (right hand side in the default layout of Quartus Prim) to pull in a PLL clock into the top level design.
+If you do not have a graphical top level design, then you have to copy and paste the instantiation template into your 
+top-level verilog file.
+
+The instantiation template is generated where ???
+
+Libraries > Basic Functions > Clocks > PLL > PLL Intel FPGA IP
+IP variation file name: C:/aaa_se/fpga/DE10_Standard/DE10_Standard_VGA/vga_25Mhz_pll
+IP variation file type: Verilog
+OK
+
+Select PLL Intel FPGA IP. >  The MegaWizard will load.
+Reference Clock Frequency: 25 Mhz. (Reading: https://ftp.intel.com/Public/Pub/fpgaup/pub/Intel_Material/Boards/DE10-Standard/DE10_Standard_User_Manual.pdf, the DE10-Standard has 50 Mhz clocks connected to the FPGA fabric)
+Desired Frequency: 25.0 MHz.
+Remove the checkbox at "Enable lock output port".
+Finish.
+
+MenuBar > Project > Add Remove Files in Project > 
