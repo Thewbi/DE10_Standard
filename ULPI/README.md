@@ -75,7 +75,7 @@ on the backside of the Waveshare breakout board.
 | CLK             | GPIO Pin 21               | GPIO_D18  | Purple                       |
 | RST             | GPIO Pin 19               | GPIO_D16  | Gray                         |
 | 5V              | GPIO Pin 11               | VCC5      | White                        |
-| ---             | ---           |           | ---       | ---                          |
+| ---             | ---                       | ---       | ---                          |
 | DATA 0          | GPIO Pin 28               | GPIO_D25  | Black                        |
 | DATA 1          | GPIO Pin 26               | GPIO_D23  | Brown                        |
 | DATA 2          | GPIO Pin 24               | GPIO_D21  | Red                          |
@@ -84,3 +84,40 @@ on the backside of the Waveshare breakout board.
 | DATA 5          | GPIO Pin 18               | GPIO_D15  | Green                        |
 | DATA 6          | GPIO Pin 16               | GPIO_D13  | Blue                         |
 | DATA 7          | GPIO Pin 14               | GPIO_D11  | Purple                       |
+
+
+
+### Second Experiment, check if the 60Mhz clock works
+
+Assignment > Pin Planner
+
+
+
+Create a 26 bit wide register
+
+```
+reg [25:0] slow_clk;
+```
+
+On every edge of the 60 Mhz clock, increment the register
+
+```
+always @(posedge clk)
+begin
+    slow_clk <= slow_clk +1;
+end
+```
+
+Use bit 25 to drive LED0:
+
+```
+assign LEDR[0] = slow_clk[25];
+```
+
+If the breakout board correctly produces a 60 Mhz clock, the LED should
+blink about with 0,5 Hz.
+
+
+
+
+

@@ -1197,8 +1197,9 @@ add an explicit declaration of that symbol to define it's datatype. Per default 
 you explicitly have to change it to reg.
 
 
+## Error (13066): Illegal directional connection from the pin "GPIO[25]" to the node "read_data[0]" 
 
-
+https://community.intel.com/t5/Programmable-Devices/Quartus-Error-13066-Illegal-directional-connection-from-the-pin/td-p/233231
 
 
 

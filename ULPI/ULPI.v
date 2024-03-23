@@ -18,18 +18,20 @@ module ULPI(
     input           [9:0]       SW,
 
     //////////// LED //////////
-    output          [9:0]       LEDR,
+    // LEDR[0] == ganz rechts
+    output       reg   [9:0]       LEDR, // wire was manually added otherwise there are compile errors with assignments
 
     //////////// Seg7 //////////
-    output          [6:0]       HEX0,
-    output          [6:0]       HEX1,
-    output          [6:0]       HEX2,
-    output          [6:0]       HEX3,
-    output          [6:0]       HEX4,
-    output          [6:0]       HEX5,
+    output          reg[6:0]       HEX0,
+    output          reg[6:0]       HEX1,
+    output          reg[6:0]       HEX2,
+    output          reg[6:0]       HEX3,
+    output          reg[6:0]       HEX4,
+    output          reg[6:0]       HEX5,
 
     //////////// GPIO, GPIO connect to GPIO Default //////////
-    inout           [35:0]      GPIO
+    inout           reg[35:0]      GPIO
+
 );
 
 
@@ -38,26 +40,341 @@ module ULPI(
 //  REG/WIRE declarations
 //=======================================================
 
+wire stp;
 
+wire nxt;
+reg nxt_storage;
+
+wire dir;
+reg dir_storage;
+
+//reg dir;
+wire clk;
+
+//wire rst;
+reg rst;
+
+//wire [7:0] data;
+
+reg [7:0] read_data;
+reg [7:0] write_data;
+
+wire clk_1mhz;
+reg [25:0] slow_clk;
+
+reg [3:0] push_button_count;
+
+localparam START_STATE =        3'b1111;
+localparam INIT_STATE =         3'b0000;
+localparam IDLE_STATE =         3'b0001;
+localparam CMD_WRITE_STATE =    3'b0010;
+localparam READ_STATE =         3'b0011;
+localparam TURNAROUND_STATE =   3'b0100;
+
+
+reg [3:0] curr_state;            //= START_STATE;
+reg [3:0] next_state;            //= INIT_STATE;
 
 
 //=======================================================
 //  Structural coding
 //=======================================================
 
-ulpi_wrapper ulpi_wrapper_instance(
-
-    // inputs
-    .ulpi_clk60_i(),
-    .ulpi_rst_i(),
-    .ulpi_data_out_i(),
-    .ulpi_dir_i(),
-    .ulpi_nxt_i(),
+    assign stp = GPIO[24]; // GPIO_D24
+    assign nxt = GPIO[22]; // GPIO_D22
+    assign dir = GPIO[20]; // GPIO_D20
+    assign clk = GPIO[18]; // GPIO_D18
     
-    // outputs
-    .ulpi_data_in_o(),
-    .ulpi_stp_o()
-    );
+    //assign rst = 0;
+    
+//    assign LEDR[0] = read_data[0];
+//    assign LEDR[1] = read_data[1];
+//    assign LEDR[2] = read_data[2];
+//    assign LEDR[3] = read_data[3];
+//    assign LEDR[4] = read_data[4];
+//    assign LEDR[5] = read_data[5];
+//    assign LEDR[6] = read_data[6];
+//    assign LEDR[7] = read_data[7];
+    
+    initial 
+    begin
+        rst = 0;
+        
+        GPIO[16] = rst;
+        
+        curr_state            = START_STATE;
+        next_state            = INIT_STATE;
+    
+        dir_storage = 0;
+        LEDR[8] = 0;
+        
+        read_data[0] <= 1;
+        read_data[1] <= 0;
+        read_data[2] <= 0;
+        read_data[3] <= 0;
+        read_data[4] <= 0;
+        read_data[5] <= 0;
+        read_data[6] <= 0;
+        read_data[7] <= 0;
+        
+        LEDR[0] = read_data[0];
+        LEDR[1] = read_data[1];
+        LEDR[2] = read_data[2];
+        LEDR[3] = read_data[3];
+        LEDR[4] = read_data[4];
+        LEDR[5] = read_data[5];
+        LEDR[6] = read_data[6];
+        LEDR[7] = read_data[7];
+    end
+    
+    
+//    always @(GPIO[20])
+//    begin
+//        dir <= GPIO[20]; // GPIO_D20
+//    end
+    
+    //assign LEDR[8] = dir;
+    
+//    always @(posedge dir)
+//    begin
+//        dir_storage = 1;
+//        LEDR[8] = dir_storage;
+//    end
+    
+//    always @(posedge clk & dir)
+//    begin
+//        LEDR[8] = 1;
+//    end
+    
+    always @ (posedge clk)
+    begin
+        nxt_storage <= nxt;
+    end
+    
+    always @ (posedge clk)
+    begin
+        dir_storage <= dir;
+    end
+    
+    wire turnaround_w = dir_storage ^ dir;
 
+
+    // change state
+    always @(posedge clk)
+    begin    
+    
+        //dir <= GPIO[20]; // GPIO_D20
+        
+        curr_state <= next_state;
+        HEX0[6:0] = segments(curr_state);
+        
+        if ((KEY[1] == 0) & (curr_state != CMD_WRITE_STATE))
+        begin
+            curr_state <= CMD_WRITE_STATE;
+        end
+        
+        if (nxt_storage)
+        begin
+            curr_state <= TURNAROUND_STATE;
+        end
+//        
+//        if (dir)
+//        begin
+//            next_state <= READ_STATE;
+//        end
+        
+        
+    end
+    
+    // change next_state
+    always @(curr_state)
+    begin
+    
+        
+        case(curr_state)
+        
+            INIT_STATE:
+            begin
+                //rst <= 1;
+                next_state <= IDLE_STATE;
+            end
+            
+            IDLE_STATE:
+            begin
+                //rst <= 0;
+                next_state <= IDLE_STATE;
+            end
+            
+            CMD_WRITE_STATE:
+            begin
+                next_state <= CMD_WRITE_STATE;
+            end
+            
+            TURNAROUND_STATE:
+            begin
+                next_state <= READ_STATE;
+            end
+            
+            READ_STATE:
+            begin
+                next_state <= IDLE_STATE;
+            end
+            
+        endcase
+    end
+    
+    // perform action based on state
+    always @(curr_state)
+    begin
+    
+        case(curr_state)
+        
+            INIT_STATE:
+            begin
+                //rst <= 0;
+            end
+        
+            IDLE_STATE:
+            begin
+                //rst <= 0;
+            
+                write_data <= 8'b00000000;
+                
+                GPIO[11] <= 0; // data bit 7
+                GPIO[13] <= 0; // data bit 6
+                GPIO[15] <= 0;
+                GPIO[17] <= 0;
+                GPIO[19] <= 0;
+                GPIO[21] <= 0;
+                GPIO[23] <= 0;
+                GPIO[25] <= 0;
+                
+//                read_data[0] <= 1;
+//                read_data[1] <= 0;
+//                read_data[2] <= 1;
+//                read_data[3] <= 0;
+//                read_data[4] <= 1;
+//                read_data[5] <= 0;
+//                read_data[6] <= 1;
+//                read_data[7] <= 0;
+//                
+//                LEDR[0] = read_data[0];
+//                LEDR[1] = read_data[1];
+//                LEDR[2] = read_data[2];
+//                LEDR[3] = read_data[3];
+//                LEDR[4] = read_data[4];
+//                LEDR[5] = read_data[5];
+//                LEDR[6] = read_data[6];
+//                LEDR[7] = read_data[7];
+            end
+            
+            CMD_WRITE_STATE:
+            begin
+                write_data <= 8'b11000000;
+                
+                // REGISTER READ CMD (Table 5.1 TX CMD Encoding)
+                GPIO[11] <= 1; // data bit 7
+                GPIO[13] <= 1; // data bit 6
+                
+                // register address == 0x00 == Vendor ID low
+                GPIO[15] <= 0;
+                GPIO[17] <= 0;
+                GPIO[19] <= 0;
+                GPIO[21] <= 0;
+                GPIO[23] <= 0;
+                GPIO[25] <= 0;
+            end
+            
+            TURNAROUND_STATE:
+            begin
+            end
+            
+            READ_STATE:
+            begin
+                read_data[0] <= GPIO[11];
+                read_data[1] <= GPIO[13];
+                read_data[2] <= GPIO[15];
+                read_data[3] <= GPIO[17];
+                read_data[4] <= GPIO[19];
+                read_data[5] <= GPIO[21];
+                read_data[6] <= GPIO[23];
+                read_data[7] <= GPIO[25];
+                
+                LEDR[0] = read_data[0];
+                LEDR[1] = read_data[1];
+                LEDR[2] = read_data[2];
+                LEDR[3] = read_data[3];
+                LEDR[4] = read_data[4];
+                LEDR[5] = read_data[5];
+                LEDR[6] = read_data[6];
+                LEDR[7] = read_data[7];
+                
+//                GPIO[11] <= 0; // data bit 7
+//                GPIO[13] <= 0; // data bit 6
+//                GPIO[15] <= 0;
+//                GPIO[17] <= 0;
+//                GPIO[19] <= 0;
+//                GPIO[21] <= 0;
+//                GPIO[23] <= 0;
+//                GPIO[25] <= 0;
+            end
+            
+        endcase
+        
+    end
+    
+    always @(posedge clk)
+    begin
+        slow_clk <= slow_clk + 1;
+        LEDR[9] = slow_clk[25];
+    end
+    
+    //assign LEDR[9] = slow_clk[25];
+    
+    //
+    // Convert a hex nibble, i.e. 0 through F, to a 7 bit variable
+    // representing which segments on the 7 segment display should 
+    // be lit.
+    //
+    function automatic [6:0] segments ( input [3:0] i_nibble );
+
+       begin
+          
+          //
+          // Since DE10-Lite board 7 segment displays LEDs
+          // are wired active low, the bit patterns below 
+          // are negated.  
+          //
+          // Each 1 in the raw literal value represents 
+          // a lit segment.  
+          //
+          // 'default' case not necessary since list is exhaustive,
+          // but good practice to include to ensure avoiding unintentional
+          // inferred latch.  Note that this is _combinational_ logic.
+          //
+          
+          case (i_nibble)         // 654 3210 <----- Bit positions based on
+             4'h0   : segments = ~7'b011_1111;   //  numbering in comments at
+             4'h1   : segments = ~7'b000_0110;   //  top of this module.
+             4'h2   : segments = ~7'b101_1011;
+             4'h3   : segments = ~7'b100_1111;
+             4'h4   : segments = ~7'b110_0110;
+             4'h5   : segments = ~7'b110_1101;
+             4'h6   : segments = ~7'b111_1101;
+             4'h7   : segments = ~7'b000_0111;
+             4'h8   : segments = ~7'b111_1111;
+             4'h9   : segments = ~7'b110_1111;
+             4'hA   : segments = ~7'b111_0111;
+             4'hB   : segments = ~7'b111_1100;
+             4'hC   : segments = ~7'b011_1001;
+             4'hD   : segments = ~7'b101_1110;
+             4'hE   : segments = ~7'b111_1001;
+             4'hF   : segments = ~7'b111_0001;
+             default: segments = ~7'b100_0000;
+          endcase
+          
+       end
+
+    endfunction
 
 endmodule

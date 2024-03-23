@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="pll_ip_variation_file_sim/pll_ip_variation_file.vo"
+   type="VERILOG" />
+ <topLevel name="pll_ip_variation_file" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

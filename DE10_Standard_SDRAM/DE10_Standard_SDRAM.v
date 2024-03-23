@@ -107,9 +107,35 @@ module DE10_Standard_SDRAM(
     
     reg[15:0] read_buffer; // read word is written here
     
+    
+    //
+    // new UI
+    //
+    
+    reg     [4:0]   state           = 5'b00001;
+    reg     [4:0]   next_state      = 5'b00010;
+    
+    wire            write_command;
+    wire            read_command;
+    
 //=======================================================
 //  Structural coding
 //=======================================================
+
+
+
+    // pressing KEY[0] starts a write_command
+    assign  write_command   = ~KEY[0];
+
+    // pressing KEY[1] starts a read command
+    assign  read_command    = ~KEY[1];
+
+    // set new state
+    always @(posedge CLOCK_50)
+    begin
+        state <= #1 next_state;
+    end
+
 
     // PLL
     pll pll_instance(
@@ -247,12 +273,12 @@ module DE10_Standard_SDRAM(
     
     
     
-    
+ /*    
     reg [31:0] cont;
     always @(posedge CLOCK_50)
         cont <= (cont == 32'd4_000_001) ? 32'd0 : cont + 1'b1; // increment cont or go back to 0
 
-/* */ 
+
 
     //
     // WRITE - key 1
@@ -339,6 +365,7 @@ module DE10_Standard_SDRAM(
     begin
         HEX5[6:0] = segments(DRAM_DQ);
     end
+    */ 
     
  /*   */
     
