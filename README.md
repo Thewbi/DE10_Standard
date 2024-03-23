@@ -1394,3 +1394,19 @@ indicate that you do not care about the output of the inferred RAM when there ar
    localparam WAIT_ALU_OR_MEM_bit = 3;
    localparam NB_STATES           = 4;
 ```
+
+
+
+# VGA Output
+
+First, generate a project using the SystemBuilder utility:
+
+```
+C:\aaa_se\fpga\DE10-Standard_v.1.3.0_SystemCD\Tool\SystemBuilder\DE10_Standard_SystemBuilder.exe
+```
+
+As a configuration for the SystemBuilder utility, set the "Project Name" to "DE10_Standard_VGA".
+Enable CLOCK and VGA.
+Optionally enable: LEDx10, Buttonx4, 7-Segmentx6, Switchx10.
+
+Generate the project.
