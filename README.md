@@ -1532,3 +1532,76 @@ Remove the checkbox at "Enable lock output port".
 Finish.
 
 MenuBar > Project > Add Remove Files in Project > 
+
+
+
+## Upload bitstream to the DE10 Standard directly into the FPGA (not into EPCS)
+
+https://www.intel.com/content/www/us/en/docs/programmable/683769/17-1/step-5-configure-your-design-on-the-board.html
+
+Processing > Start Compilation > Wait until compilation is done.
+
+Connect the USB cable between the PC and the DE10 standard.
+Apply power to the DE10 Standard.
+
+In the Windows Device Manager, when you plug in the cable, a node called "JTAG cables" has to appear.
+Within the "JTAB cables" node there has to be a "Altera USB Blaster II (JTAG interface)" node!
+When this node exists, the start button is not grayed out any longer.
+
+Tools > programmer
+In the graphical view, you have to have two nodes, SOCVHPS and 5CSXFC6D6
+It this is not the case, you have to do more setup:
+MenuBar > Processing > Auto Detect > Select: 5CSXFC6D6
+In the dialog that pops up, select "Yes"
+
+Select the FPGA (5CSXFC6D6) in the graphical JTAG chain or the list view > On the left hand side, select "Change file" > Select the .sof file.
+
+In the list of JTAG devices, find the line for the 5CSXFC6D6.
+In this line, set the checkmark in the checkbox "Program/Configure"
+In the columns, set the checkbox called "Program/Configure" 
+
+Click "Start" on the left side
+
+
+
+
+Click the "Hardware Setup" button
+Add Hardware > Auto Detect
+
+If nothing is auto detected, click the "Add Device" button.
+Manually select: 
+	Device Family: "Cyclone"
+	Device Name: "5CSXFC6D6F31"
+
+The chip on the DE10 Standard is: 5CSXFC6D6F31   (SE 5CSXFC6D6F31C6N)
+Mode: JTAG
+
+
+Q: "Start" Button is deactivated!
+A: Make sure you have the right USB cable plugged in! Sometimes there are that many USB cables on the table that it gets confusing.
+In the Windows Device Manager, when you plug in the cable, a node called "JTAG cables" has to appear.
+Within the "JTAB cables" node there has to be a Altera USB Blaster II JTAG node!
+When this node exists, the start button is not grayed out any longer.
+
+https://www.youtube.com/watch?v=erYag9zr0ek
+There will be a warning about non-matching something, click OK and ignore it.
+
+
+
+
+
+Device Manager > JTAG Cables
+
+
+### Programming Errors
+
+#### Device Chain in Chain description file does not match physical device chain -- expected 1 device(s) but found 2 device(s)
+
+https://community.intel.com/t5/Intel-Quartus-Prime-Software/Programmer-Error-Message-quot-Device-Chain-does-not-match/m-p/146182
+
+The JTAG chain in the programmer has to match all devices available on the PCB!
+For the DE10-Standard, you have two JTAG devices: 
+
+SOCVHPS and 5CSXFC6D6.
+
+If you do not have a 5CSXFC6D6 JTAG node in the list, add it manually using the "?? to De ???" button. (My UI is cut of due to resolution issues)
