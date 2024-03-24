@@ -29,14 +29,18 @@ module DE10_Standard_VGA(
     output           [6:0]      HEX5,
 
     //////////// VGA //////////
-    output                      VGA_BLANK_N,
-    output           [7:0]      VGA_B,
-    output                      VGA_CLK,
-    output           [7:0]      VGA_G,
-    output                      VGA_HS,
+    
     output           [7:0]      VGA_R,
+    output           [7:0]      VGA_G,
+    output           [7:0]      VGA_B,    
+    
+    output                      VGA_VS,
+    output                      VGA_HS,
+    
     output                      VGA_SYNC_N,
-    output                      VGA_VS
+    output                      VGA_BLANK_N,
+    output                      VGA_CLK
+    
 );
 
 
@@ -45,28 +49,175 @@ module DE10_Standard_VGA(
 //  REG/WIRE declarations
 //=======================================================
 
-reg iRST_N = 1'b1;
+//reg iRST_N = 1'b1;
+wire iRST_N;
+assign iRST_N = KEY[0];
+//assign iRST_N = 1'b1;
 
-wire vga_25Mhz_clock;
+wire vga_clock;
 
 // Host Side
-reg       [7:0]     iRed = 8'b0;
-reg       [7:0]     iGreen = 8'b0;
-reg       [7:0]     iBlue = 8'b0;
-wire       [21:0]    oAddress;
-wire       [10:0]    oCurrent_X;
-wire       [10:0]    oCurrent_Y;
-wire                 oRequest;
+//reg         [7:0]       iRed    = 8'b0;
+//reg         [7:0]       iGreen  = 8'b0;
+//reg         [7:0]       iBlue   = 8'b0;
+wire       [7:0]        iRed;
+wire       [7:0]        iGreen;
+wire       [7:0]        iBlue;
+wire       [21:0]       oAddress;
+wire       [10:0]       oCurrent_X;
+wire       [10:0]       oCurrent_Y;
+wire                    oRequest;
+
+wire blank;
 
 //=======================================================
 //  Structural coding
 //=======================================================
 
-vga_25Mhz_pll (
+//assign VGA_CLK = vga_clock;
+
+
+
+//// x, y coordinates
+//localparam CORDW = 10;
+//wire [CORDW-1:0] x, y;
+//// start of frame (pulsed HIGH on each new frame)
+//wire sof;
+//// data enable (HIGH when counters are in active pixel region)
+//wire de;
+
+//display_480p vga(
+//    .clk_pix(vga_clock),
+//    //.rst_pix(!sw),
+//    .hsync(VGA_HS),
+//    .vsync(VGA_VS),
+//    .sx(x),
+//    .sy(y),
+//    .frame(sof),
+//    .de(de),
+//    .line()
+//);
+
+//// VGA Pmod output
+////always_ff @(posedge clk_25M) begin
+////always_comb begin
+//    assign VGA_R    = (de && (y < 160))              ? 8'hFF : 8'h00;
+//    assign VGA_G    = (de && (y > 160 && y < 320))   ? 8'hFF : 8'h00;
+//    assign VGA_B    = (de && (y > 320))              ? 8'hFF : 8'h00;
+////end
+
+
+
+
+
+//always@(posedge vga_clock)
+//begin
+//    if(oRequest)
+//        iRed <= 8'b11111111;
+//    else
+//        iRed <= 8'b0;
+//end
+
+//always@(oRequest)
+//begin
+//    if(oRequest)
+//        iRed <= 8'b11111111;
+//    else
+//        iRed <= 8'b0;
+//end
+
+
+
+
+
+//vga_25Mhz_pll (
+//    .refclk(CLOCK_50), // refclk.clk
+//    //.rst(0),
+//    .rst(~iRST_N), // reset.reset
+//    .outclk_0(vga_clock) // outclk0.clk
+//);
+
+vga_25Mhz2_pll (
     .refclk(CLOCK_50), // refclk.clk
-    .rst(iRST_N), // reset.reset
-    .outclk_0(vga_25Mhz_clock) // outclk0.clk
+    //.rst(0),
+    .rst(~iRST_N), // reset.reset
+    .outclk_0(vga_clock) // outclk0.clk
 );
+
+
+
+
+/**/
+assign VGA_R    = (de && (sy < 160))                ? 8'hFF : 8'h00;
+assign VGA_G    = (de && (sy > 160 && sy < 320))    ? 8'hFF : 8'h00;
+assign VGA_B    = (de && (sy > 320))                ? 8'hFF : 8'h00;
+
+//assign VGA_BLANK_N = 1'b1; // works
+//assign VGA_BLANK_N = ~(sx<640); // does not work
+assign VGA_BLANK_N = (sx<640) && (sy<480);
+assign VGA_SYNC_N = 1'b0;
+assign VGA_CLK = vga_clock;
+
+assign VGA_HS = hsync;
+assign VGA_VS = vsync;
+
+reg [10:0]      sx;     // horizontal screen position
+reg [10:0]      sy;     // vertical screen position
+reg             hsync;  // horizontal sync
+reg             vsync;  // vertical sync
+reg             de;     // data enable (low in blanking interval)
+
+// horizontal timings
+parameter HA_END = 639;           // end of active pixels
+parameter HS_STA = HA_END + 16;   // sync starts after front porch
+parameter HS_END = HS_STA + 96;   // sync ends
+parameter LINE   = 799;           // last pixel on line (after back porch)
+
+// vertical timings
+parameter VA_END = 479;           // end of active pixels
+parameter VS_STA = VA_END + 10;   // sync starts after front porch
+parameter VS_END = VS_STA + 2;    // sync ends
+parameter SCREEN = 524;           // last line on screen (after back porch)
+
+
+always @(posedge vga_clock)
+begin
+    hsync = ~(sx >= HS_STA && sx < HS_END);  // invert: negative polarity
+    vsync = ~(sy >= VS_STA && sy < VS_END);  // invert: negative polarity
+    de = (sx <= HA_END && sy <= VA_END);
+end
+
+// calculate horizontal and vertical screen position
+always @(posedge vga_clock or negedge iRST_N)
+begin
+    if(!iRST_N) 
+    begin
+        sx <= 0;
+        sy <= 0;
+    end
+    else
+    begin
+        if(sx == LINE) 
+        begin
+            // last pixel on line?
+            sx <= 0;
+            
+            // last line on screen?
+            sy <= (sy == SCREEN) ? 0 : sy + 1;  
+        end 
+        else 
+        begin
+            sx <= sx + 1;
+        end
+    end
+    
+end
+
+
+/*
+assign iRed    = (oRequest && (oCurrent_Y < 160))                          ? 8'hFF : 8'h00;
+assign iGreen  = (oRequest && (oCurrent_Y > 160 && oCurrent_Y < 320))      ? 8'hFF : 8'h00;
+assign iBlue   = (oRequest && (oCurrent_Y > 320))                          ? 8'hFF : 8'h00;
 
 VGA_Ctrl (
 
@@ -104,14 +255,17 @@ VGA_Ctrl (
     .oVGA_B(VGA_B),
     .oVGA_HS(VGA_HS),
     .oVGA_VS(VGA_VS),
-    .oVGA_SYNC(VGA_SYNC_N),
+    .oVGA_SYNC(VGA_SYNC_N), // SYNC_N= H_sync (neg edge)
+    //.oVGA_BLANK(blank),
     .oVGA_BLANK(VGA_BLANK_N),
-    //.oVGA_CLOCK,
+    .oVGA_CLOCK(VGA_CLK),
     
     // Control Signal
-    .iCLK(vga_25Mhz_clock),
+    .iCLK(vga_clock),
     .iRST_N(iRST_N)
 );
+*/
+
 
 
 endmodule
