@@ -21,12 +21,12 @@ module DE10_Standard_ROM(
 	output		     [9:0]		LEDR,
 
 	//////////// Seg7 //////////
-	output		     [6:0]		HEX0,
-	output		     [6:0]		HEX1,
-	output		     [6:0]		HEX2,
-	output		     [6:0]		HEX3,
-	output		     [6:0]		HEX4,
-	output		     [6:0]		HEX5
+	output		     reg[6:0]		HEX0,
+	output		     reg[6:0]		HEX1,
+	output		     reg[6:0]		HEX2,
+	output		     reg[6:0]		HEX3,
+	output		     reg[6:0]		HEX4,
+	output		     reg[6:0]		HEX5
 );
 
 
@@ -35,13 +35,75 @@ module DE10_Standard_ROM(
 //  REG/WIRE declarations
 //=======================================================
 
-
+reg     [3:0]                       debug_reg;
+reg     [9:0]  							rom_address;
+wire	  [7:0]  							rom_output;
 
 
 //=======================================================
 //  Structural coding
 //=======================================================
 
+rom_1_port	rom_1_port_inst (
+	.address ( rom_address ),
+	.clock ( CLOCK_50 ),
+	.q ( rom_output )
+	);
 
+always @ (rom_output)
+begin
+	HEX0 <= segments(rom_output);
+end
+
+always @ (negedge KEY[0])
+begin
+	rom_address <= rom_address + 1;
+end
+
+//
+// Convert a hex nibble, i.e. 0 through F, to a 7 bit variable
+// representing which segments on the 7 segment display should 
+// be lit.
+//
+function automatic [6:0] segments( input [3:0] i_nibble );
+
+	begin
+		 
+		 //
+		 // Since DE10-Lite board 7 segment displays LEDs
+		 // are wired active low, the bit patterns below 
+		 // are negated.  
+		 //
+		 // Each 1 in the raw literal value represents 
+		 // a lit segment.  
+		 //
+		 // 'default' case not necessary since list is exhaustive,
+		 // but good practice to include to ensure avoiding unintentional
+		 // inferred latch.  Note that this is _combinational_ logic.
+		 //
+		 
+		 case (i_nibble)         // 654 3210 <----- Bit positions based on
+			 4'h0   : segments = ~7'b011_1111;   //  numbering in comments at
+			 4'h1   : segments = ~7'b000_0110;   //  top of this module.
+			 4'h2   : segments = ~7'b101_1011;
+			 4'h3   : segments = ~7'b100_1111;
+			 4'h4   : segments = ~7'b110_0110;
+			 4'h5   : segments = ~7'b110_1101;
+			 4'h6   : segments = ~7'b111_1101;
+			 4'h7   : segments = ~7'b000_0111;
+			 4'h8   : segments = ~7'b111_1111;
+			 4'h9   : segments = ~7'b110_1111;
+			 4'hA   : segments = ~7'b111_0111;
+			 4'hB   : segments = ~7'b111_1100;
+			 4'hC   : segments = ~7'b011_1001;
+			 4'hD   : segments = ~7'b101_1110;
+			 4'hE   : segments = ~7'b111_1001;
+			 4'hF   : segments = ~7'b111_0001;
+			 default: segments = ~7'b100_0000;
+		 endcase
+		 
+	 end
+	 
+endfunction
 
 endmodule
